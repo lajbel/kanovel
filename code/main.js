@@ -1,19 +1,25 @@
-// The start of all KaNovel games
+ // The start of all KaNovel games
 
 import kaboom from "kaboom";
+import kanovelPlugin from "../kanovel";
 import loadAssets from "./loader";
-import kanovel from "../kanovel";
+import loadMenu from "./menu"
 
 export default kaboom({
 	width: 800,
 	height: 600,
-	plugins: [ kanovel ], // The KaNovel plugin
+	plugins: [ kanovelPlugin ],
 	background: [ 255, 209, 253 ], // This is a default background, for change the game bg, use bg()
 	stretch: true,
 	letterbox: true,
 });
 
+// kanovel({
+// 	textboxSprite: "textbox"
+// });
+
 loadAssets();
+loadMenu();
 
 // Define your characters
 
@@ -47,6 +53,5 @@ chapter("stranger things", () => [
 	prota("A beautiful girl just appeared in front of me!"),
 ]);
 
-// Start your Visual Novel
-
-startNovel();
+// Go to menu scene
+go("menu");

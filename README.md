@@ -31,7 +31,7 @@ chapter("start", () => [
 ]);
 
 // Start your Visual Novel game
-startNovel();
+go("vn");
 ```
 
 ## What is KaNovel?

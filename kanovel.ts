@@ -1,7 +1,19 @@
-import kaboom, { GameObj, KaboomCtx } from "kaboom";
+import kaboom, { KaboomCtx } from "kaboom";
 
-// Typescript Definitions
+// Typescript Definitions for KaNovel 💋
+
+interface KanovelOpt {
+	textboxSprite: string;
+}
+
 declare global {
+	/**
+	 * Simply config your Visual Novel
+	*/
+	function kanovel(
+		config: KanovelOpt
+	)
+	
 	/**
 	 * Define a Character
 	 *
@@ -33,7 +45,7 @@ declare global {
 	 * chapter("start", () => [
 	 *     prota("Ohh today is a great day!"),
 	 *	   prota("I want..."),
-	 *	   prota("I want live a visual novel life!"),
+	 *	   prota("I want to live a visual novel life!"),
 	 * ]);
 	 * ```
 	 */
@@ -77,13 +89,66 @@ declare global {
 
 
 // KaNovel Plugin
-export default function kanovel(k) {
+export default function kanovelPlugin(k: KaboomCtx) {
+	k.scene("vn", (data) => {
+		k.layers(["backgrounds", "characters", "textbox"]);
+
+		const textboxBG = k.add([
+			k.sprite("textbox"),
+			k.origin("bot"),
+			k.layer("textbox"),
+			k.z(0),
+			k.pos(k.width() / 2, k.height() - 20),
+		]);
+
+		onLoad(() => {
+			this.textbox = add([
+				text("", { size: 30, width: textboxBG.width - 50 }),
+				layer("textbox"),
+				z(1),
+				pos(
+					textboxBG.pos.sub(
+						textboxBG.width / 2 - 50 /*pad*/,
+						textboxBG.height - 30 /*pad*/
+					)
+				),
+			]);
+
+			this.namebox = add([
+				text("", { size: 40 }),
+				layer("textbox"),
+				z(2),
+				pos(
+					textboxBG.pos.sub(
+						textboxBG.width / 2 - 30,
+						textboxBG.height + 30
+					)
+				),
+			]);
+
+			this.passDialogue();
+		});
+
+		// Default input for Visual Novel
+		onUpdate(() => {
+			if (isMousePressed() || isKeyPressed("space")) {
+				this.passDialogue();
+			}
+		});
+	});
+
 	return {
 		chapters: new Map(),
 		characters: new Map(),
 		curDialog: "",
 		curChapter: "start",
 		curEvent: 0,
+
+		// Kanovel Config function
+
+		kanovel() {
+			
+		},	
 
 		// Visual Novel Making Functions
 
@@ -108,12 +173,12 @@ export default function kanovel(k) {
 
 		// History making functions
 
-		prota(dialog) {
+		prota(dialog: string) {
 			return () => this.write("", dialog);
 		},
 
-		char(id, text) {
-			return () => this.write(this.characters.get(id), text);
+		char(id: string, dialog: string) {
+			return () => this.write(this.characters.get(id), dialog);
 		},
 
 		show(charId) {
@@ -126,15 +191,15 @@ export default function kanovel(k) {
 
 		// Core Functions
 
-		write(char, text) {
+		write(char: any, dialog: string) {
 			if (char) this.namebox.text = char.name;
 			else this.namebox.text = "";
 
 			this.textbox.text = "";
-			this.curDialog = text;
+			this.curDialog = dialog;
 
-			for (let i = 0; i < text.length; i++) {
-				wait(0.05 * i, () => (this.textbox.text += text[i]));
+			for (let i = 0; i < dialog.length; i++) {
+				wait(0.05 * i, () => (this.textbox.text += dialog[i]));
 			}
 		},
 
@@ -189,57 +254,6 @@ export default function kanovel(k) {
 			this.curEvent = 0;
 
 			this.passDialogue();
-		},
-
-		startNovel() {
-			// Layers of the game
-			layers(["backgrounds", "characters", "textbox"]);
-
-			const textboxBG = add([
-				sprite("textbox"),
-				k.origin("bot"),
-				layer("textbox"),
-				z(0),
-				pos(width() / 2, height() - 20),
-				{
-					isWriting: false,
-				},
-			]);
-
-			onLoad(() => {
-				this.textbox = add([
-					text("", { size: 30, width: textboxBG.width - 50 }),
-					layer("textbox"),
-					z(1),
-					pos(
-						textboxBG.pos.sub(
-							textboxBG.width / 2 - 50 /*pad*/,
-							textboxBG.height - 30 /*pad*/
-						)
-					),
-				]);
-
-				this.namebox = add([
-					text("", { size: 40 }),
-					layer("textbox"),
-					z(2),
-					pos(
-						textboxBG.pos.sub(
-							textboxBG.width / 2 - 30,
-							textboxBG.height + 30
-						)
-					),
-				]);
-
-				this.passDialogue();
-			});
-
-			// Default input for Visual Novel
-			onUpdate(() => {
-				if (isMousePressed() || isKeyPressed("space")) {
-					this.passDialogue();
-				}
-			});
 		},
 	};
 }

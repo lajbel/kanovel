@@ -2920,8 +2920,73 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
   }
   __name(loadAssets, "loadAssets");
 
+  // code/menu.js
+  var menu_default = /* @__PURE__ */ __name(() => scene("menu", () => {
+    add([
+      text("KaNovel\nTemplate"),
+      origin("center"),
+      pos(center())
+    ]);
+    const btn = add([
+      text("Start!", { size: 50 }),
+      origin("center"),
+      pos(width() / 2, height() - 40),
+      area()
+    ]);
+    btn.onUpdate(() => {
+      if (btn.isHovering()) {
+        const t = time() * 10;
+        btn.color = rgb(wave(0, 255, t), wave(0, 255, t + 2), wave(0, 255, t + 4));
+        btn.scale = vec2(1.2);
+      } else {
+        btn.scale = vec2(1);
+        btn.color = rgb();
+      }
+      if (btn.isClicked()) {
+        go("vn");
+      }
+    });
+    onUpdate(() => {
+      if (isKeyPressed("space"))
+        go("vn");
+    });
+  }), "default");
+
   // kanovel.ts
   function kanovel(k2) {
+    k2.scene("vn", () => {
+      layers(["backgrounds", "characters", "textbox"]);
+      const textboxBG = add([
+        sprite("textbox"),
+        k2.origin("bot"),
+        layer("textbox"),
+        z(0),
+        pos(width() / 2, height() - 20),
+        {
+          isWriting: false
+        }
+      ]);
+      onLoad(() => {
+        this.textbox = add([
+          text("", { size: 30, width: textboxBG.width - 50 }),
+          layer("textbox"),
+          z(1),
+          pos(textboxBG.pos.sub(textboxBG.width / 2 - 50, textboxBG.height - 30))
+        ]);
+        this.namebox = add([
+          text("", { size: 40 }),
+          layer("textbox"),
+          z(2),
+          pos(textboxBG.pos.sub(textboxBG.width / 2 - 30, textboxBG.height + 30))
+        ]);
+        this.passDialogue();
+      });
+      onUpdate(() => {
+        if (isMousePressed() || isKeyPressed("space")) {
+          this.passDialogue();
+        }
+      });
+    });
     return {
       chapters: /* @__PURE__ */ new Map(),
       characters: /* @__PURE__ */ new Map(),
@@ -2946,8 +3011,8 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
       prota(dialog) {
         return () => this.write("", dialog);
       },
-      char(id, text2) {
-        return () => this.write(this.characters.get(id), text2);
+      char(id, dialog) {
+        return () => this.write(this.characters.get(id), dialog);
       },
       show(charId) {
         return () => this.showChar(this.characters.get(charId));
@@ -2955,15 +3020,15 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
       bg(sprite2) {
         return () => this.changeBackground(sprite2);
       },
-      write(char2, text2) {
+      write(char2, dialog) {
         if (char2)
           this.namebox.text = char2.name;
         else
           this.namebox.text = "";
         this.textbox.text = "";
-        this.curDialog = text2;
-        for (let i = 0; i < text2.length; i++) {
-          wait(0.05 * i, () => this.textbox.text += text2[i]);
+        this.curDialog = dialog;
+        for (let i = 0; i < dialog.length; i++) {
+          wait(0.05 * i, () => this.textbox.text += dialog[i]);
         }
       },
       checkAction(action) {
@@ -3009,39 +3074,6 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
         this.curChapter = chapter2;
         this.curEvent = 0;
         this.passDialogue();
-      },
-      startNovel() {
-        layers(["backgrounds", "characters", "textbox"]);
-        const textboxBG = add([
-          sprite("textbox"),
-          k2.origin("bot"),
-          layer("textbox"),
-          z(0),
-          pos(width() / 2, height() - 20),
-          {
-            isWriting: false
-          }
-        ]);
-        onLoad(() => {
-          this.textbox = add([
-            text("", { size: 30, width: textboxBG.width - 50 }),
-            layer("textbox"),
-            z(1),
-            pos(textboxBG.pos.sub(textboxBG.width / 2 - 50, textboxBG.height - 30))
-          ]);
-          this.namebox = add([
-            text("", { size: 40 }),
-            layer("textbox"),
-            z(2),
-            pos(textboxBG.pos.sub(textboxBG.width / 2 - 30, textboxBG.height + 30))
-          ]);
-          this.passDialogue();
-        });
-        onUpdate(() => {
-          if (isMousePressed() || isKeyPressed("space")) {
-            this.passDialogue();
-          }
-        });
       }
     };
   }
@@ -3057,6 +3089,7 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     letterbox: true
   });
   loadAssets();
+  menu_default();
   character("b", "Beany", "beany");
   chapter("start", () => [
     prota("Ohh today is a great day!"),
@@ -3081,6 +3114,6 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     char("b", "My eyes are here, generic protagonist"),
     prota("A beautiful girl just appeared in front of me!")
   ]);
-  startNovel();
+  go("menu");
 })();
 //# sourceMappingURL=game.js.map
