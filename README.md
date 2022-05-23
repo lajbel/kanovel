@@ -1,16 +1,18 @@
 KaNovel is a [Replit Template](https://replit.com) for make visuals novels in your browser, using Replit and Kaboom!
 
+Originally made for [Template jam 2022](https://blog.replit.com/template-jam)
+
 ## Quick Example
 ```js 
 // We start importing Kaboom and Kanovel plugin
 import kaboom from "kaboom";
-import kanovel from "../kanovel";
+import kanovelPlugin from "../kanovel";
 
 // Starts the Kaboom context
 export default kaboom({
 	width: 800,
 	height: 600,
-	plugins: [ kanovel ], // IMPORTANT: Load the KaNovel plugin
+	plugins: [ kanovelPlugin ], // IMPORTANT: Load the KaNovel plugin
 });
 
 // Define your characters with id, name and sprite
@@ -38,6 +40,7 @@ go("vn");
 * A plugin of Kaboom for make Visual Novels with a understable API for writers ✅
 * A Replit template that merges the Kaboom IDE with the functions of the KaNovel plugin ✅
 * A game engine ❌
+* A replacement for Kaboom ❌
 
 ## Credits
 This template are using...
