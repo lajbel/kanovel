@@ -1,12 +1,17 @@
+![](https://imgur.com/g5mjs4C.png)
+
 KaNovel is a [Replit Template](https://replit.com) for make visuals novels in your browser, using Replit and Kaboom!
 
-Originally made for [Template jam 2022](https://blog.replit.com/template-jam)
+> Visual novels are a very popular genre of videogames in sectors such as Japan and among the most recurrent readers.
+> Our goal is to make the development 100% opensource, in the browser and easily extensible for someone with not much programming knowledge, such as a writer.
+
+Originally made for [Template Jam 2022](https://blog.replit.com/template-jam) by Bean Corporation ©️
 
 ## Quick Example
 ```js 
 // We start importing Kaboom and Kanovel plugin
 import kaboom from "kaboom";
-import kanovelPlugin from "../kanovel";
+import kanovelPlugin from "./kanovel";
 
 // Starts the Kaboom context
 export default kaboom({
@@ -25,18 +30,21 @@ chapter("start", () => [
 	prota("Two beautiful girls stare at me.");
 	
 	// Show the character sprite and speak as the character
-	show("b");
-	char("b", "Oh hi baby");
-
-	show("m");
-	char("m", "Hey, that's my line!");
+	[
+		show("b", "left");
+		char("b", "Oh hi baby");
+	],
+	[
+		show("m", "right");
+		char("m", "Hey, that's my line!");
+	],
 ]);
 
 // Start your Visual Novel game
 go("vn");
 ```
 
-## What is KaNovel?
+## What's KaNovel?
 * A plugin of Kaboom for make Visual Novels with a understable API for writers ✅
 * A Replit template that merges the Kaboom IDE with the functions of the KaNovel plugin ✅
 * A game engine ❌
@@ -48,3 +56,4 @@ This template are using...
 * Kaboom as the core of all the process 🕵🏻
 * Beany is a modification of [Agustina](https://dejinyucu.itch.io/agustina-visual-novel-sprite) by [Dejinyucu](dejinyucu.itch.io)
 * Backgrounds by Noraneko Games
+* APL386 font for the logo text by abrudz
