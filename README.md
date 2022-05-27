@@ -1,4 +1,4 @@
-![](https://imgur.com/g5mjs4C.png)
+<img src="https://imgur.com/g5mjs4C.png" alt="KaNovel Logo" align="center">
 
 KaNovel is a [Replit Template](https://replit.com) for make visuals novels in your browser, using Replit and Kaboom!
 
