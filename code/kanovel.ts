@@ -1,8 +1,19 @@
-import kaboom, { KaboomCtx } from "kaboom";
+import { KaboomCtx, Vec2 } from "kaboom";
 
 // Typescript Definitions for KaNovel 💋
 
-interface KanovelOpt {
+interface Character {
+	name: string;
+	sprite: string;
+	expressions: CharacterExpression[]
+}
+
+interface CharacterExpression {
+	name: string;
+	sprite: string;
+}
+
+interface KaNovelOpt {
 	textboxSprite: string;
 }
 
@@ -11,9 +22,9 @@ declare global {
 	 * Simply config your Visual Novel
 	*/
 	function kanovel(
-		config: KanovelOpt
-	)
-	
+		config: KaNovelOpt
+	);
+
 	/**
 	 * Define a Character
 	 *
@@ -32,20 +43,24 @@ declare global {
 		 */
 		name: string,
 		/**
-		 * Sprite for use it whit show()
+		 * Default sprite for use it whit show()
 		 */
-		sprite: string
+		defaultSprite?: string,
+		/**
+		 * Expressions of the Character
+		*/
+		expressions?: CharacterExpression,
 	): void;
 
 	/**
-	 * Define a Chapter
+	 * Define a chapter
 	 *
 	 * @example
 	 * ```js
 	 * chapter("start", () => [
-	 *     prota("Ohh today is a great day!"),
-	 *	   prota("I want..."),
-	 *	   prota("I want to live a visual novel life!"),
+	 *    prota("Ohh today is a great day!"),
+	 *    prota("I want..."),
+	 *    prota("I want to live a visual novel life!"),
 	 * ]);
 	 * ```
 	 */
@@ -85,8 +100,43 @@ declare global {
 		 */
 		text: string,
 	): void;
+
+	/**
+	 * Show a character
+	*/
+	function show(
+		charId: string,
+		align: "center" | "left" | "right",
+	): void;
+
+	/**
+	 * Show a background
+	*/
+	function bg(
+		/**
+		 * Background's sprite
+		*/
+		sprite: string,
+	): void;
 }
 
+// Custom Components
+
+function fade() {
+	let lastTime = 0;
+	
+    return {
+        id: "fade",
+        require: [ "opacity" ],
+        update() {
+            if(this.opacity < 1 && time() > lastTime) {
+				lastTime = time() + 0.010;
+
+				this.opacity += 0.025;
+			}
+        },
+    }
+}
 
 // KaNovel Plugin
 export default function kanovelPlugin(k: KaboomCtx) {
@@ -137,9 +187,11 @@ export default function kanovelPlugin(k: KaboomCtx) {
 		});
 	});
 
+	// THE REAL KANOVEL PLUGIN 🦋🦋🦋
+
 	return {
+		characters: new Map<string, Character>(),
 		chapters: new Map(),
-		characters: new Map(),
 		curDialog: "",
 		curChapter: "start",
 		curEvent: 0,
@@ -147,8 +199,8 @@ export default function kanovelPlugin(k: KaboomCtx) {
 		// Kanovel Config function
 
 		kanovel() {
-			
-		},	
+
+		},
 
 		// Visual Novel Making Functions
 
@@ -167,7 +219,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
 			return this.chapters.set(title, events());
 		},
 
-		jump(chapter) {
+		jump(chapter: string) {
 			return () => this.changeChapter(chapter);
 		},
 
@@ -181,25 +233,31 @@ export default function kanovelPlugin(k: KaboomCtx) {
 			return () => this.write(this.characters.get(id), dialog);
 		},
 
-		show(charId) {
-			return () => this.showChar(this.characters.get(charId));
+		show(charId: string, align: "center" | "left" | "right") {
+			return () => this.showChar(this.characters.get(charId), align);
 		},
 
-		bg(sprite) {
+		bg(sprite: string) {
 			return () => this.changeBackground(sprite);
 		},
 
 		// Core Functions
 
 		write(char: any, dialog: string) {
-			if (char) this.namebox.text = char.name;
-			else this.namebox.text = "";
 
 			this.textbox.text = "";
-			this.curDialog = dialog;
 
-			for (let i = 0; i < dialog.length; i++) {
-				wait(0.05 * i, () => (this.textbox.text += dialog[i]));
+			if (char) {
+				this.namebox.text = char.name;
+				this.curDialog = '"' + dialog + '"';
+			}
+			else {
+				this.namebox.text = "";
+				this.curDialog = dialog;
+			}
+
+			for (let i = 0; i < this.curDialog.length; i++) {
+				wait(0.05 * i, () => (this.textbox.text += this.curDialog[i]));
 			}
 		},
 
@@ -219,36 +277,47 @@ export default function kanovelPlugin(k: KaboomCtx) {
 			this.curEvent++;
 		},
 
-		showChar(char) {
-			add([
-				sprite(char.sprite),
+		showChar(char: Character, align: "center" | "left" | "right") {
+			let charPos: Vec2 = k.vec2(0, 0);
+
+			if (align === "center") charPos = k.center();
+			else if (align === "left") charPos = k.vec2(k.width() / 4, k.height() / 2);
+			else if (align === "right") charPos = k.vec2(k.width() / 2 + k.width() / 4, k.height() / 2);
+			else charPos = k.center();
+
+			k.add([
+				k.sprite(char.sprite),
 				k.origin("center"),
-				pos(center()),
-				layer("characters"),
+				k.pos(charPos),
+				k.layer("characters"),
+				k.opacity(0),
+				
+				fade(),
 			]);
 		},
 
-		changeBackground(spr) {
-			every("background", (bg) => {
-				bg.use(lifespan(1, { fade: 0.5 }));
+		changeBackground(spr: string) {
+			k.every("bg", (bg) => {
+				bg.use(k.lifespan(1, { fade: 0.5 }));
 			});
 
-			const bg = add([
-				sprite(spr),
+			const bg = k.add([
+				k.sprite(spr),
+				k.opacity(0),
 				k.origin("center"),
-				z(0),
-				pos(center()),
-				layer("backgrounds"),
-				"background",
+				k.pos(k.center()),
+				k.z(0),
+				k.layer("backgrounds"),
+				"bg",
+
+				fade(),
 			]);
 
 			bg.use(z(0));
 		},
 
-		changeChapter(chapter) {
-			if (!this.chapters.get(chapter)) {
-				throw new Error(`"${chapter} chapter don't exists!"`);
-			}
+		changeChapter(chapter: string) {
+			if (!this.chapters.get(chapter)) throw new Error(`"${chapter} chapter don't exists!"`);
 
 			this.curChapter = chapter;
 			this.curEvent = 0;

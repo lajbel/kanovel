@@ -6,8 +6,6 @@ loadSprite
 loadAudio
 */
 
-import k from "./main";
-
 export default function loadAssets() {
 	loadSprite("textbox", "sprites/textbox.png");
 	loadSprite("train", "sprites/train.png");

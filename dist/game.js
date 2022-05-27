@@ -2912,59 +2912,30 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     return ye;
   }, "default");
 
-  // code/loader.js
-  function loadAssets() {
-    loadSprite("textbox", "sprites/textbox.png");
-    loadSprite("train", "sprites/train.png");
-    loadSprite("beany", "sprites/beany.png");
-  }
-  __name(loadAssets, "loadAssets");
-
-  // code/menu.js
-  var menu_default = /* @__PURE__ */ __name(() => scene("menu", () => {
-    add([
-      text("KaNovel\nTemplate"),
-      origin("center"),
-      pos(center())
-    ]);
-    const btn = add([
-      text("Start!", { size: 50 }),
-      origin("center"),
-      pos(width() / 2, height() - 40),
-      area()
-    ]);
-    btn.onUpdate(() => {
-      if (btn.isHovering()) {
-        const t = time() * 10;
-        btn.color = rgb(wave(0, 255, t), wave(0, 255, t + 2), wave(0, 255, t + 4));
-        btn.scale = vec2(1.2);
-      } else {
-        btn.scale = vec2(1);
-        btn.color = rgb();
-      }
-      if (btn.isClicked()) {
-        go("vn");
-      }
-    });
-    onUpdate(() => {
-      if (isKeyPressed("space"))
-        go("vn");
-    });
-  }), "default");
-
-  // kanovel.ts
-  function kanovel(k2) {
-    k2.scene("vn", () => {
-      layers(["backgrounds", "characters", "textbox"]);
-      const textboxBG = add([
-        sprite("textbox"),
-        k2.origin("bot"),
-        layer("textbox"),
-        z(0),
-        pos(width() / 2, height() - 20),
-        {
-          isWriting: false
+  // code/kanovel.ts
+  function fade() {
+    let lastTime = 0;
+    return {
+      id: "fade",
+      require: ["opacity"],
+      update() {
+        if (this.opacity < 1 && time() > lastTime) {
+          lastTime = time() + 0.01;
+          this.opacity += 0.025;
         }
+      }
+    };
+  }
+  __name(fade, "fade");
+  function kanovelPlugin(k2) {
+    k2.scene("vn", (data) => {
+      k2.layers(["backgrounds", "characters", "textbox"]);
+      const textboxBG = k2.add([
+        k2.sprite("textbox"),
+        k2.origin("bot"),
+        k2.layer("textbox"),
+        k2.z(0),
+        k2.pos(k2.width() / 2, k2.height() - 20)
       ]);
       onLoad(() => {
         this.textbox = add([
@@ -2988,15 +2959,17 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
       });
     });
     return {
-      chapters: /* @__PURE__ */ new Map(),
       characters: /* @__PURE__ */ new Map(),
+      chapters: /* @__PURE__ */ new Map(),
       curDialog: "",
       curChapter: "start",
       curEvent: 0,
-      character(id, name, sprite2) {
+      kanovel() {
+      },
+      character(id, name, sprite) {
         return this.characters.set(id, {
           name,
-          sprite: sprite2
+          sprite
         });
       },
       chapter(title, events) {
@@ -3014,21 +2987,23 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
       char(id, dialog) {
         return () => this.write(this.characters.get(id), dialog);
       },
-      show(charId) {
-        return () => this.showChar(this.characters.get(charId));
+      show(charId, align) {
+        return () => this.showChar(this.characters.get(charId), align);
       },
-      bg(sprite2) {
-        return () => this.changeBackground(sprite2);
+      bg(sprite) {
+        return () => this.changeBackground(sprite);
       },
       write(char2, dialog) {
-        if (char2)
-          this.namebox.text = char2.name;
-        else
-          this.namebox.text = "";
         this.textbox.text = "";
-        this.curDialog = dialog;
-        for (let i = 0; i < dialog.length; i++) {
-          wait(0.05 * i, () => this.textbox.text += dialog[i]);
+        if (char2) {
+          this.namebox.text = char2.name;
+          this.curDialog = '"' + dialog + '"';
+        } else {
+          this.namebox.text = "";
+          this.curDialog = dialog;
+        }
+        for (let i = 0; i < this.curDialog.length; i++) {
+          wait(0.05 * i, () => this.textbox.text += this.curDialog[i]);
         }
       },
       checkAction(action) {
@@ -3045,64 +3020,111 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
         this.checkAction(this.chapters.get(this.curChapter)[this.curEvent]);
         this.curEvent++;
       },
-      showChar(char2) {
-        add([
-          sprite(char2.sprite),
+      showChar(char2, align) {
+        let charPos = k2.vec2(0, 0);
+        if (align === "center")
+          charPos = k2.center();
+        else if (align === "left")
+          charPos = k2.vec2(k2.width() / 4, k2.height() / 2);
+        else if (align === "right")
+          charPos = k2.vec2(k2.width() / 2 + k2.width() / 4, k2.height() / 2);
+        else
+          charPos = k2.center();
+        k2.add([
+          k2.sprite(char2.sprite),
           k2.origin("center"),
-          pos(center()),
-          layer("characters")
+          k2.pos(charPos),
+          k2.layer("characters"),
+          k2.opacity(0),
+          fade()
         ]);
       },
       changeBackground(spr) {
-        every("background", (bg3) => {
-          bg3.use(lifespan(1, { fade: 0.5 }));
+        k2.every("bg", (bg3) => {
+          bg3.use(k2.lifespan(1, { fade: 0.5 }));
         });
-        const bg2 = add([
-          sprite(spr),
+        const bg2 = k2.add([
+          k2.sprite(spr),
+          k2.opacity(0),
           k2.origin("center"),
-          z(0),
-          pos(center()),
-          layer("backgrounds"),
-          "background"
+          k2.pos(k2.center()),
+          k2.z(0),
+          k2.layer("backgrounds"),
+          "bg",
+          fade()
         ]);
         bg2.use(z(0));
       },
       changeChapter(chapter2) {
-        if (!this.chapters.get(chapter2)) {
+        if (!this.chapters.get(chapter2))
           throw new Error(`"${chapter2} chapter don't exists!"`);
-        }
         this.curChapter = chapter2;
         this.curEvent = 0;
         this.passDialogue();
       }
     };
   }
-  __name(kanovel, "kanovel");
+  __name(kanovelPlugin, "kanovelPlugin");
+
+  // code/loader.js
+  function loadAssets() {
+    loadSprite("textbox", "sprites/textbox.png");
+    loadSprite("train", "sprites/train.png");
+    loadSprite("beany", "sprites/beany.png");
+  }
+  __name(loadAssets, "loadAssets");
+
+  // code/menu.js
+  var menu_default = /* @__PURE__ */ __name(() => scene("menu", () => {
+    add([
+      text("KaNovel\nTemplate"),
+      origin("center"),
+      pos(center())
+    ]);
+    const btn = add([
+      text("Play!", { size: 50 }),
+      origin("center"),
+      pos(width() / 2, height() - 40),
+      area()
+    ]);
+    btn.onUpdate(() => {
+      if (btn.isHovering())
+        btn.scale = vec2(1.2);
+      else
+        btn.scale = vec2(1);
+      if (btn.isClicked()) {
+        go("vn");
+      }
+    });
+    onUpdate(() => {
+      if (isKeyPressed("space"))
+        go("vn");
+    });
+  }), "default");
 
   // code/main.js
-  var main_default = no({
+  no({
     width: 800,
     height: 600,
-    plugins: [kanovel],
+    plugins: [kanovelPlugin],
     background: [255, 209, 253],
     stretch: true,
     letterbox: true
   });
   loadAssets();
   menu_default();
+  character("p", "A Replit User (YOU)");
   character("b", "Beany", "beany");
   chapter("start", () => [
     prota("Ohh today is a great day!"),
     prota("Hmm. I want to ..."),
-    prota("I want to live a visual novel life!"),
+    prota("I want to live a fun life!"),
     [
-      prota(". . ."),
+      prota("..."),
       bg("train")
     ],
-    prota("what"),
-    [
-      prota("IT'S A ANIME WORLD")
-    ],
+    prota("..."),
+    char("p", "IT'S A ANIME WORLD???"),
     [
       show("b"),
       char("b", "Yes, you are in a Visual Novel")
@@ -3110,9 +3132,8 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     jump("stranger things")
   ]);
   chapter("stranger things", () => [
-    prota("A beautiful girl just appeared in front of me!"),
-    char("b", "My eyes are here, generic protagonist"),
-    prota("A beautiful girl just appeared in front of me!")
+    prota("A beautiful girl just appeared in front of me"),
+    char("b", "My eyes are here, generic protagonist")
   ]);
   go("menu");
 })();

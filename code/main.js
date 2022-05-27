@@ -1,15 +1,16 @@
- // The start of all KaNovel games
+// The start of all KaNovel games
 
 import kaboom from "kaboom";
-import kanovelPlugin from "../kanovel";
+import kanovelPlugin from "./kanovel";
 import loadAssets from "./loader";
 import loadMenu from "./menu"
 
-export default kaboom({
+kaboom({
 	width: 800,
 	height: 600,
 	plugins: [ kanovelPlugin ],
-	background: [ 255, 209, 253 ], // This is a default background, for change the game bg, use bg()
+	// This is a default background, for change the game bg, use bg()
+	background: [ 255, 209, 253 ],
 	stretch: true,
 	letterbox: true,
 });
@@ -21,25 +22,23 @@ export default kaboom({
 loadAssets();
 loadMenu();
 
-// Define your characters
+// Characters for use in the narration
 
+character("p", "A Replit User (YOU)");
 character("b", "Beany", "beany");
 
-// The start chapter
+// The "start" chapter for your novel 🚩
 
 chapter("start", () => [
 	prota("Ohh today is a great day!"),
 	prota("Hmm. I want to ..."),
-	prota("I want to live a visual novel life!"),
-	// two actions in the same time
+	prota("I want to live a fun life!"),
 	[
-		prota(". . ."), 
+		prota("..."), 
 		bg("train"),
 	],
-	prota("what"),
-	[
-		prota("IT'S A ANIME WORLD"),
-	],
+	prota("..."),
+	char("p", "IT'S A ANIME WORLD???"),
 	[
 		show("b"),
 		char("b", "Yes, you are in a Visual Novel"),
@@ -48,9 +47,8 @@ chapter("start", () => [
 ]);
 
 chapter("stranger things", () => [
-	prota("A beautiful girl just appeared in front of me!"),
+	prota("A beautiful girl just appeared in front of me"),
 	char("b", "My eyes are here, generic protagonist"),
-	prota("A beautiful girl just appeared in front of me!"),
 ]);
 
 // Go to menu scene

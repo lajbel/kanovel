@@ -2,19 +2,30 @@
   var __defProp = Object.defineProperty;
   var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-  // kanovel.ts
-  function kanovel(k) {
-    k.scene("vn", () => {
-      layers(["backgrounds", "characters", "textbox"]);
-      const textboxBG = add([
-        sprite("textbox"),
-        k.origin("bot"),
-        layer("textbox"),
-        z(0),
-        pos(width() / 2, height() - 20),
-        {
-          isWriting: false
+  // code/kanovel.ts
+  function fade() {
+    let lastTime = 0;
+    return {
+      id: "fade",
+      require: ["opacity"],
+      update() {
+        if (this.opacity < 1 && time() > lastTime) {
+          lastTime = time() + 0.01;
+          this.opacity += 0.025;
         }
+      }
+    };
+  }
+  __name(fade, "fade");
+  function kanovelPlugin(k) {
+    k.scene("vn", (data) => {
+      k.layers(["backgrounds", "characters", "textbox"]);
+      const textboxBG = k.add([
+        k.sprite("textbox"),
+        k.origin("bot"),
+        k.layer("textbox"),
+        k.z(0),
+        k.pos(k.width() / 2, k.height() - 20)
       ]);
       onLoad(() => {
         this.textbox = add([
@@ -38,15 +49,17 @@
       });
     });
     return {
-      chapters: /* @__PURE__ */ new Map(),
       characters: /* @__PURE__ */ new Map(),
+      chapters: /* @__PURE__ */ new Map(),
       curDialog: "",
       curChapter: "start",
       curEvent: 0,
-      character(id, name, sprite2) {
+      kanovel() {
+      },
+      character(id, name, sprite) {
         return this.characters.set(id, {
           name,
-          sprite: sprite2
+          sprite
         });
       },
       chapter(title, events) {
@@ -64,21 +77,23 @@
       char(id, dialog) {
         return () => this.write(this.characters.get(id), dialog);
       },
-      show(charId) {
-        return () => this.showChar(this.characters.get(charId));
+      show(charId, align) {
+        return () => this.showChar(this.characters.get(charId), align);
       },
-      bg(sprite2) {
-        return () => this.changeBackground(sprite2);
+      bg(sprite) {
+        return () => this.changeBackground(sprite);
       },
       write(char, dialog) {
-        if (char)
-          this.namebox.text = char.name;
-        else
-          this.namebox.text = "";
         this.textbox.text = "";
-        this.curDialog = dialog;
-        for (let i = 0; i < dialog.length; i++) {
-          wait(0.05 * i, () => this.textbox.text += dialog[i]);
+        if (char) {
+          this.namebox.text = char.name;
+          this.curDialog = '"' + dialog + '"';
+        } else {
+          this.namebox.text = "";
+          this.curDialog = dialog;
+        }
+        for (let i = 0; i < this.curDialog.length; i++) {
+          wait(0.05 * i, () => this.textbox.text += this.curDialog[i]);
         }
       },
       checkAction(action) {
@@ -95,38 +110,50 @@
         this.checkAction(this.chapters.get(this.curChapter)[this.curEvent]);
         this.curEvent++;
       },
-      showChar(char) {
-        add([
-          sprite(char.sprite),
+      showChar(char, align) {
+        let charPos = k.vec2(0, 0);
+        if (align === "center")
+          charPos = k.center();
+        else if (align === "left")
+          charPos = k.vec2(k.width() / 4, k.height() / 2);
+        else if (align === "right")
+          charPos = k.vec2(k.width() / 2 + k.width() / 4, k.height() / 2);
+        else
+          charPos = k.center();
+        k.add([
+          k.sprite(char.sprite),
           k.origin("center"),
-          pos(center()),
-          layer("characters")
+          k.pos(charPos),
+          k.layer("characters"),
+          k.opacity(0),
+          fade()
         ]);
       },
       changeBackground(spr) {
-        every("background", (bg2) => {
-          bg2.use(lifespan(1, { fade: 0.5 }));
+        k.every("bg", (bg2) => {
+          bg2.use(k.lifespan(1, { fade: 0.5 }));
         });
-        const bg = add([
-          sprite(spr),
+        const bg = k.add([
+          k.sprite(spr),
+          k.opacity(0),
           k.origin("center"),
-          z(0),
-          pos(center()),
-          layer("backgrounds"),
-          "background"
+          k.pos(k.center()),
+          k.z(0),
+          k.layer("backgrounds"),
+          "bg",
+          fade()
         ]);
         bg.use(z(0));
       },
       changeChapter(chapter) {
-        if (!this.chapters.get(chapter)) {
+        if (!this.chapters.get(chapter))
           throw new Error(`"${chapter} chapter don't exists!"`);
-        }
         this.curChapter = chapter;
         this.curEvent = 0;
         this.passDialogue();
       }
     };
   }
-  __name(kanovel, "kanovel");
+  __name(kanovelPlugin, "kanovelPlugin");
 })();
 //# sourceMappingURL=kanovel.js.map

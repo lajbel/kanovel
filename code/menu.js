@@ -1,4 +1,6 @@
-import k from "./main";
+/*
+The menu scene made in Kaboom
+*/
 
 export default () => scene("menu", () => {
 	add([
@@ -8,25 +10,15 @@ export default () => scene("menu", () => {
 	]);
 
 	const btn = add([
-		text("Start!", { size: 50, }),
+		text("Play!", { size: 50, }),
 		origin("center"),
 		pos(width() / 2, height() - 40),
 		area(),
 	]);
 
 	btn.onUpdate(() => {
-		if (btn.isHovering()) {
-			const t = time() * 10
-			btn.color = rgb(
-				wave(0, 255, t),
-				wave(0, 255, t + 2),
-				wave(0, 255, t + 4),
-			)
-			btn.scale = vec2(1.2)
-		} else {
-			btn.scale = vec2(1)
-			btn.color = rgb()
-		}
+		if (btn.isHovering()) btn.scale = vec2(1.2);
+		else btn.scale = vec2(1);
 
 		if (btn.isClicked()) {
 			go("vn");

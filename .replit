@@ -10,7 +10,8 @@ hidden = [
 	"kanovel.ts",
 	"run.js",
 	"package.json",
-	"package-lock.json", 
+	"package-lock.json",
+	".gitignore",
 ]
 
 [packager]
