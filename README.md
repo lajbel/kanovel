@@ -1,6 +1,9 @@
-<img src="https://imgur.com/g5mjs4C.png" alt="KaNovel Logo" align="center">
-
-KaNovel is a [Replit Template](https://replit.com) for make visuals novels in your browser, using Replit and Kaboom!
+<p align="center">
+	<img src="https://imgur.com/g5mjs4C.png" alt="KaNovel Logo" align="center">
+	<p align="center">
+		KaNovel is a <a href="https://replit.com">Replit Template</a> & <a href="https://kaboomjs.com">Kaboom</a> Plugin for make Visuals Novel in your browser, open source and easy extendable
+	</p>
+</p>
 
 > Visual novels are a very popular genre of videogames in sectors such as Japan and among the most recurrent readers.
 > Our goal is to make the development 100% opensource, in the browser and easily extensible for someone with not much programming knowledge, such as a writer.
