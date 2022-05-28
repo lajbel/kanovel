@@ -17,6 +17,16 @@ interface KaNovelOpt {
 	textboxSprite: string;
 }
 
+interface NovelEvent {
+	toWrite?: string,
+	showChar?: Character,
+	charAlign?: string;
+	/**
+	 * Skip the wait of click
+	*/
+	canSkip?: boolean;
+}
+
 declare global {
 	/**
 	 * Simply config your Visual Novel
@@ -124,22 +134,105 @@ declare global {
 
 function fade() {
 	let lastTime = 0;
-	
-    return {
-        id: "fade",
-        require: [ "opacity" ],
-        update() {
-            if(this.opacity < 1 && time() > lastTime) {
+
+	return {
+		id: "fade",
+		require: ["opacity"],
+		update() {
+			if (this.opacity < 1 && time() > lastTime) {
 				lastTime = time() + 0.010;
 
 				this.opacity += 0.025;
 			}
-        },
-    }
+		},
+	}
 }
 
 // KaNovel Plugin
+
 export default function kanovelPlugin(k: KaboomCtx) {
+	// KANOVEL CODE, BASICALLY THE CORE OF THE CORE OF THE CORE
+
+	function write(dialog: string, char?: Character) {
+		this.textbox.text = "";
+
+		if (char) {
+			this.namebox.text = char.name;
+			this.curDialog = '"' + dialog + '"';
+		}
+		else {
+			this.namebox.text = "";
+			this.curDialog = dialog;
+		}
+
+		for (let i = 0; i < this.curDialog.length; i++) {
+			k.wait(0.05 * i, () => (this.textbox.text += this.curDialog[i]));
+		}
+	}
+
+	function showCharacter(char: Character, align: "center" | "left" | "right" = "center") {
+		let charPos: Vec2 = k.vec2(0, 0);
+
+		if (align === "center") charPos = k.center();
+		else if (align === "left") charPos = k.vec2(k.width() / 4, k.height() / 2);
+		else if (align === "right") charPos = k.vec2(k.width() / 2 + k.width() / 4, k.height() / 2);
+
+		k.add([
+			k.sprite(char.sprite),
+			k.opacity(0),
+			k.origin("center"),
+			k.pos(charPos),
+			k.layer("characters"),
+
+			fade(),
+		]);
+	}
+
+	function changeBackground(spr: string) {
+		k.every("bg", (bg) => {
+			bg.use(k.lifespan(1, { fade: 0.5 }));
+		});
+
+		k.add([
+			k.sprite(spr),
+			k.opacity(0),
+			k.origin("center"),
+			k.pos(k.center()),
+			k.z(0),
+			k.layer("backgrounds"),
+			"bg",
+
+			fade(),
+		]);
+	}
+
+	function changeChapter(chapter: string) {
+		if (!this.chapters.get(chapter)) throw new Error(`"${chapter} chapter don't exists!"`);
+
+		this.curChapter = chapter;
+		this.curEvent = -1;
+	}
+
+	function nextEvent() {
+		console.log(this.chapters.get(this.curChapter)[this.curEvent], this.curEvent);
+		
+		this.curEvent++;
+		runEvent(this.chapters.get(this.curChapter)[this.curEvent]);
+	}
+
+	function runEvent(e) {
+		/*t*/ if(!e) k.go("menu");
+		
+		if (e.toWrite) write(e.toWrite, e.char ? e.char : "");
+		if (e.showChar) showCharacter(e.showChar, e.charAlign);
+		if (e.showBg) changeBackground(e.showBg);
+
+		if (e.changeToChapter) changeChapter(e.changeToChapter);
+		if (e.canSkip) nextEvent();
+	}
+
+	// KANOVEL DEFAULT SCENE
+
 	k.scene("vn", (data) => {
 		k.layers(["backgrounds", "characters", "textbox"]);
 
@@ -151,12 +244,12 @@ export default function kanovelPlugin(k: KaboomCtx) {
 			k.pos(k.width() / 2, k.height() - 20),
 		]);
 
-		onLoad(() => {
-			this.textbox = add([
-				text("", { size: 30, width: textboxBG.width - 50 }),
-				layer("textbox"),
-				z(1),
-				pos(
+		k.onLoad(() => {
+			this.textbox = k.add([
+				k.text("", { size: 30, width: textboxBG.width - 50 }),
+				k.layer("textbox"),
+				k.z(1),
+				k.pos(
 					textboxBG.pos.sub(
 						textboxBG.width / 2 - 50 /*pad*/,
 						textboxBG.height - 30 /*pad*/
@@ -164,25 +257,24 @@ export default function kanovelPlugin(k: KaboomCtx) {
 				),
 			]);
 
-			this.namebox = add([
-				text("", { size: 40 }),
-				layer("textbox"),
-				z(2),
-				pos(
+			this.namebox = k.add([
+				k.text("", { size: 40 }),
+				k.layer("textbox"),
+				k.z(2),
+				k.pos(
 					textboxBG.pos.sub(
 						textboxBG.width / 2 - 30,
 						textboxBG.height + 30
 					)
 				),
 			]);
-
-			this.passDialogue();
 		});
 
 		// Default input for Visual Novel
-		onUpdate(() => {
-			if (isMousePressed() || isKeyPressed("space")) {
-				this.passDialogue();
+		
+		k.onUpdate(() => {
+			if (k.isMousePressed() || k.isKeyPressed("space")) {
+				nextEvent();
 			}
 		});
 	});
@@ -194,12 +286,12 @@ export default function kanovelPlugin(k: KaboomCtx) {
 		chapters: new Map(),
 		curDialog: "",
 		curChapter: "start",
-		curEvent: 0,
+		curEvent: -1,
 
 		// Kanovel Config function
 
-		kanovel() {
-
+		kanovel(config: KaNovelOpt) {
+			
 		},
 
 		// Visual Novel Making Functions
@@ -219,110 +311,41 @@ export default function kanovelPlugin(k: KaboomCtx) {
 			return this.chapters.set(title, events());
 		},
 
-		jump(chapter: string) {
-			return () => this.changeChapter(chapter);
-		},
-
 		// History making functions
 
 		prota(dialog: string) {
-			return () => this.write("", dialog);
+			return {
+				toWrite: dialog,
+			}
 		},
 
 		char(id: string, dialog: string) {
-			return () => this.write(this.characters.get(id), dialog);
+			return {
+				toWrite: dialog,
+				char: this.characters.get(id),
+			}
 		},
 
-		show(charId: string, align: "center" | "left" | "right") {
-			return () => this.showChar(this.characters.get(charId), align);
+		show(charId: string, align: "center" | "left" | "right" = "center") {
+			return {
+				showChar: this.characters.get(charId),
+				charAlign: align,
+				canSkip: true,
+			}
 		},
 
 		bg(sprite: string) {
-			return () => this.changeBackground(sprite);
+			return {
+				showBg: sprite,
+				canSkip: true,
+			};
 		},
 
-		// Core Functions
-
-		write(char: any, dialog: string) {
-
-			this.textbox.text = "";
-
-			if (char) {
-				this.namebox.text = char.name;
-				this.curDialog = '"' + dialog + '"';
-			}
-			else {
-				this.namebox.text = "";
-				this.curDialog = dialog;
-			}
-
-			for (let i = 0; i < this.curDialog.length; i++) {
-				wait(0.05 * i, () => (this.textbox.text += this.curDialog[i]));
-			}
-		},
-
-		checkAction(action) {
-			if (action.length) {
-				for (const act of action) this.checkAction(act);
-			} else {
-				action();
-			}
-		},
-
-		passDialogue() {
-			if (this.textbox.text !== this.curDialog) return;
-
-			this.checkAction(this.chapters.get(this.curChapter)[this.curEvent]);
-
-			this.curEvent++;
-		},
-
-		showChar(char: Character, align: "center" | "left" | "right") {
-			let charPos: Vec2 = k.vec2(0, 0);
-
-			if (align === "center") charPos = k.center();
-			else if (align === "left") charPos = k.vec2(k.width() / 4, k.height() / 2);
-			else if (align === "right") charPos = k.vec2(k.width() / 2 + k.width() / 4, k.height() / 2);
-			else charPos = k.center();
-
-			k.add([
-				k.sprite(char.sprite),
-				k.origin("center"),
-				k.pos(charPos),
-				k.layer("characters"),
-				k.opacity(0),
-				
-				fade(),
-			]);
-		},
-
-		changeBackground(spr: string) {
-			k.every("bg", (bg) => {
-				bg.use(k.lifespan(1, { fade: 0.5 }));
-			});
-
-			const bg = k.add([
-				k.sprite(spr),
-				k.opacity(0),
-				k.origin("center"),
-				k.pos(k.center()),
-				k.z(0),
-				k.layer("backgrounds"),
-				"bg",
-
-				fade(),
-			]);
-
-			bg.use(z(0));
-		},
-
-		changeChapter(chapter: string) {
-			if (!this.chapters.get(chapter)) throw new Error(`"${chapter} chapter don't exists!"`);
-
-			this.curChapter = chapter;
-			this.curEvent = 0;
-
-			this.passDialogue();
+		jump(chapter: string) {
+			return {
+				changeToChapter: chapter,
+				canSkip: true,
+			};
 		},
 	};
 }

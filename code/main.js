@@ -33,16 +33,12 @@ chapter("start", () => [
 	prota("Ohh today is a great day!"),
 	prota("Hmm. I want to ..."),
 	prota("I want to live a fun life!"),
-	[
-		prota("..."), 
-		bg("train"),
-	],
+	prota("..."), 
+	bg("train"),
 	prota("..."),
 	char("p", "IT'S A ANIME WORLD???"),
-	[
-		show("b"),
-		char("b", "Yes, you are in a Visual Novel"),
-	],
+	show("b"),
+	char("b", "Yes, you are in a Visual Novel"),
 	jump("stranger things"),
 ]);
 

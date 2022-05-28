@@ -1,7 +1,7 @@
 <p align="center">
 	<img src="https://imgur.com/g5mjs4C.png" alt="KaNovel Logo" align="center">
 	<p align="center">
-		KaNovel is a <a href="https://replit.com">Replit Template</a> & <a href="https://kaboomjs.com">Kaboom</a> Plugin for make Visuals Novel in your browser, open source and easy extendable
+		KaNovel is a <a href="https://replit.com">Replit Template</a> & <a href="https://kaboomjs.com">Kaboom</a> Plugin for make Visual Novels in your browser, open source and easy extendable
 	</p>
 </p>
 
@@ -31,16 +31,13 @@ character("m", "Marky", "marky");
 chapter("start", () => [
 	// Write as the protagonist, or you can use it like a narrator
 	prota("Two beautiful girls stare at me.");
-	
-	// Show the character sprite and speak as the character
-	[
-		show("b", "left");
-		char("b", "Oh hi baby");
-	],
-	[
-		show("m", "right");
-		char("m", "Hey, that's my line!");
-	],
+
+	// Show & Talk as a character
+	show("b", "left");
+	char("b", "Oh hi baby");
+ 
+	show("m", "right");
+	char("m", "Hey, that's my line!");
 ]);
 
 // Start your Visual Novel game
