@@ -2943,6 +2943,7 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     }
     __name(write, "write");
     function showCharacter(char2, align = "center") {
+      nextEvent();
       let charPos = k2.vec2(0, 0);
       if (align === "center")
         charPos = k2.center();
@@ -2961,6 +2962,7 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     }
     __name(showCharacter, "showCharacter");
     function changeBackground(spr) {
+      nextEvent();
       k2.every("bg", (bg2) => {
         bg2.use(k2.lifespan(1, { fade: 0.5 }));
       });
@@ -2981,27 +2983,28 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
         throw new Error(`"${chapter2} chapter don't exists!"`);
       this.curChapter = chapter2;
       this.curEvent = -1;
+      nextEvent();
     }
     __name(changeChapter, "changeChapter");
+    function playBGMusic(song) {
+      nextEvent();
+      k2.play(song, { loop: true });
+    }
+    __name(playBGMusic, "playBGMusic");
     function nextEvent() {
-      console.log(this.chapters.get(this.curChapter)[this.curEvent], this.curEvent);
+      if (this.textbox.text !== this.curDialog)
+        return;
       this.curEvent++;
       runEvent(this.chapters.get(this.curChapter)[this.curEvent]);
     }
     __name(nextEvent, "nextEvent");
-    function runEvent(e) {
-      if (!e)
-        k2.go("menu");
-      if (e.toWrite)
-        write(e.toWrite, e.char ? e.char : "");
-      if (e.showChar)
-        showCharacter(e.showChar, e.charAlign);
-      if (e.showBg)
-        changeBackground(e.showBg);
-      if (e.changeToChapter)
-        changeChapter(e.changeToChapter);
-      if (e.canSkip)
-        nextEvent();
+    function runEvent(event) {
+      if (event.length) {
+        for (const e of event)
+          this.runEvent(e);
+      } else {
+        event();
+      }
     }
     __name(runEvent, "runEvent");
     k2.scene("vn", (data) => {
@@ -3015,7 +3018,10 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
       ]);
       k2.onLoad(() => {
         this.textbox = k2.add([
-          k2.text("", { size: 30, width: textboxBG.width - 50 }),
+          k2.text("", {
+            size: 30,
+            width: textboxBG.width - 70
+          }),
           k2.layer("textbox"),
           k2.z(1),
           k2.pos(textboxBG.pos.sub(textboxBG.width / 2 - 50, textboxBG.height - 30))
@@ -3026,6 +3032,7 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
           k2.z(2),
           k2.pos(textboxBG.pos.sub(textboxBG.width / 2 - 30, textboxBG.height + 30))
         ]);
+        nextEvent();
       });
       k2.onUpdate(() => {
         if (k2.isMousePressed() || k2.isKeyPressed("space")) {
@@ -3041,10 +3048,10 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
       curEvent: -1,
       kanovel(config) {
       },
-      character(id, name, sprite) {
+      character(id, name, sprite2) {
         return this.characters.set(id, {
           name,
-          sprite
+          sprite: sprite2
         });
       },
       chapter(title, events) {
@@ -3054,33 +3061,26 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
         return this.chapters.set(title, events());
       },
       prota(dialog) {
-        return {
-          toWrite: dialog
-        };
+        return () => write(dialog);
       },
       char(id, dialog) {
-        return {
-          toWrite: dialog,
-          char: this.characters.get(id)
-        };
+        return () => write(dialog, this.characters.get(id));
       },
       show(charId, align = "center") {
-        return {
-          showChar: this.characters.get(charId),
-          charAlign: align,
-          canSkip: true
-        };
+        return () => showCharacter(this.characters.get(charId), align);
       },
-      bg(sprite) {
-        return {
-          showBg: sprite,
-          canSkip: true
-        };
+      bg(sprite2) {
+        return () => changeBackground(sprite2);
       },
       jump(chapter2) {
-        return {
-          changeToChapter: chapter2,
-          canSkip: true
+        return () => changeChapter(chapter2);
+      },
+      music(song) {
+        return () => playBGMusic(song);
+      },
+      burpy() {
+        return () => {
+          k2.burp();
         };
       }
     };
@@ -3092,34 +3092,60 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     loadSprite("textbox", "sprites/textbox.png");
     loadSprite("train", "sprites/train.png");
     loadSprite("beany", "sprites/beany.png");
+    loadSprite("marky", "sprites/marky.png");
+    loadSprite("kanovel", "sprites/kanovel.png");
+    loadSound("Dubious", "sounds/Dubious.mp3");
+    loadSound("Moar BGM", "sounds/Moar BGM.mp3");
   }
   __name(loadAssets, "loadAssets");
 
   // code/menu.js
   var menu_default = /* @__PURE__ */ __name(() => scene("menu", () => {
+    const bgm = play("Dubious", { loop: true });
     add([
-      text("KaNovel\nTemplate"),
+      sprite("kanovel"),
       origin("center"),
       pos(center())
     ]);
-    const btn = add([
+    add([
+      text("KaNovel"),
+      origin("center"),
+      pos(center())
+    ]);
+    add([
+      text("Template"),
+      origin("center"),
+      pos(center().add(0, 60))
+    ]);
+    add([
       text("Play!", { size: 50 }),
       origin("center"),
       pos(width() / 2, height() - 40),
-      area()
+      area(),
+      "btn",
+      {
+        scene: "vn"
+      }
     ]);
-    btn.onUpdate(() => {
+    add([
+      text("Load!", { size: 50 }),
+      origin("center"),
+      pos(width() / 4, height() - 40),
+      area(),
+      "btn",
+      {
+        scene: "saveload"
+      }
+    ]);
+    onUpdate("btn", (btn) => {
       if (btn.isHovering())
         btn.scale = vec2(1.2);
       else
         btn.scale = vec2(1);
       if (btn.isClicked()) {
-        go("vn");
+        bgm.stop();
+        go(btn.scene);
       }
-    });
-    onUpdate(() => {
-      if (isKeyPressed("space"))
-        go("vn");
     });
   }), "default");
 
@@ -3136,12 +3162,17 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
   menu_default();
   character("p", "A Replit User (YOU)");
   character("b", "Beany", "beany");
+  character("m", "Marky", "marky");
   chapter("start", () => [
     prota("Ohh today is a great day!"),
-    prota("Hmm. I want to ..."),
-    prota("I want to live a fun life!"),
-    prota("..."),
+    prota("Hmm..."),
+    prota("I would like to do something fun."),
+    jump("in the train")
+  ]);
+  chapter("in the train", () => [
     bg("train"),
+    music("Moar BGM"),
+    prota("..."),
     prota("..."),
     char("p", "IT'S A ANIME WORLD???"),
     show("b"),
@@ -3150,7 +3181,12 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
   ]);
   chapter("stranger things", () => [
     prota("A beautiful girl just appeared in front of me"),
-    char("b", "My eyes are here, generic protagonist")
+    char("b", "My eyes are here, generic protagonist"),
+    show("m", "left"),
+    char("m", "ohhi"),
+    char("m", "welcome to KaNovel"),
+    char("m", "now it's your turn to make your own story"),
+    burpy()
   ]);
   go("menu");
 })();

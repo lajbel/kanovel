@@ -17,16 +17,6 @@ interface KaNovelOpt {
 	textboxSprite: string;
 }
 
-interface NovelEvent {
-	toWrite?: string,
-	showChar?: Character,
-	charAlign?: string;
-	/**
-	 * Skip the wait of click
-	*/
-	canSkip?: boolean;
-}
-
 declare global {
 	/**
 	 * Simply config your Visual Novel
@@ -128,6 +118,16 @@ declare global {
 		*/
 		sprite: string,
 	): void;
+
+	/**
+	 * Play a music
+	*/
+	function music(
+		/**
+		 * Audio loaded with Kaboom `loadAudio()`
+		*/
+		song: string,
+	): void;
 }
 
 // Custom Components
@@ -153,7 +153,7 @@ function fade() {
 export default function kanovelPlugin(k: KaboomCtx) {
 	// KANOVEL CODE, BASICALLY THE CORE OF THE CORE OF THE CORE
 
-	function write(dialog: string, char?: Character) {
+	function write(dialog: string, char?: Character) {	
 		this.textbox.text = "";
 
 		if (char) {
@@ -171,6 +171,8 @@ export default function kanovelPlugin(k: KaboomCtx) {
 	}
 
 	function showCharacter(char: Character, align: "center" | "left" | "right" = "center") {
+		nextEvent();
+		
 		let charPos: Vec2 = k.vec2(0, 0);
 
 		if (align === "center") charPos = k.center();
@@ -189,6 +191,8 @@ export default function kanovelPlugin(k: KaboomCtx) {
 	}
 
 	function changeBackground(spr: string) {
+		nextEvent();
+		
 		k.every("bg", (bg) => {
 			bg.use(k.lifespan(1, { fade: 0.5 }));
 		});
@@ -211,24 +215,30 @@ export default function kanovelPlugin(k: KaboomCtx) {
 
 		this.curChapter = chapter;
 		this.curEvent = -1;
+
+		nextEvent();
+	}
+
+	function playBGMusic(song: string) {
+		nextEvent();
+		
+		k.play(song, { loop: true });
 	}
 
 	function nextEvent() {
-		console.log(this.chapters.get(this.curChapter)[this.curEvent], this.curEvent);
+		if(this.textbox.text !== this.curDialog) return;
 		
 		this.curEvent++;
 		runEvent(this.chapters.get(this.curChapter)[this.curEvent]);
 	}
 
-	function runEvent(e) {
-		/*t*/ if(!e) k.go("menu");
-		
-		if (e.toWrite) write(e.toWrite, e.char ? e.char : "");
-		if (e.showChar) showCharacter(e.showChar, e.charAlign);
-		if (e.showBg) changeBackground(e.showBg);
-
-		if (e.changeToChapter) changeChapter(e.changeToChapter);
-		if (e.canSkip) nextEvent();
+	function runEvent(event) {
+		if(event.length) { 
+			for (const e of event) this.runEvent(e) 
+		}
+		else {
+			event();
+		}
 	}
 
 	// KANOVEL DEFAULT SCENE
@@ -246,7 +256,10 @@ export default function kanovelPlugin(k: KaboomCtx) {
 
 		k.onLoad(() => {
 			this.textbox = k.add([
-				k.text("", { size: 30, width: textboxBG.width - 50 }),
+				k.text("", {
+					size: 30,
+					width: textboxBG.width - 70,
+				}),
 				k.layer("textbox"),
 				k.z(1),
 				k.pos(
@@ -268,6 +281,8 @@ export default function kanovelPlugin(k: KaboomCtx) {
 					)
 				),
 			]);
+
+			nextEvent();
 		});
 
 		// Default input for Visual Novel
@@ -313,39 +328,34 @@ export default function kanovelPlugin(k: KaboomCtx) {
 
 		// History making functions
 
-		prota(dialog: string) {
-			return {
-				toWrite: dialog,
-			}
+		prota(dialog: string) {			
+			return () => write(dialog);
 		},
 
 		char(id: string, dialog: string) {
-			return {
-				toWrite: dialog,
-				char: this.characters.get(id),
-			}
+			return () => write(dialog, this.characters.get(id));
 		},
 
 		show(charId: string, align: "center" | "left" | "right" = "center") {
-			return {
-				showChar: this.characters.get(charId),
-				charAlign: align,
-				canSkip: true,
-			}
+			return () => showCharacter(this.characters.get(charId), align);
 		},
 
 		bg(sprite: string) {
-			return {
-				showBg: sprite,
-				canSkip: true,
-			};
+			return () => changeBackground(sprite);
 		},
 
 		jump(chapter: string) {
-			return {
-				changeToChapter: chapter,
-				canSkip: true,
-			};
+			return () => changeChapter(chapter);
 		},
+
+		music(song: string) {
+			return () => playBGMusic(song);
+		},
+
+		burpy() {
+			return () => {
+				k.burp();
+			};
+		}
 	};
 }

@@ -26,25 +26,42 @@ loadMenu();
 
 character("p", "A Replit User (YOU)");
 character("b", "Beany", "beany");
+character("m", "Marky", "marky");
 
 // The "start" chapter for your novel 🚩
 
 chapter("start", () => [
 	prota("Ohh today is a great day!"),
-	prota("Hmm. I want to ..."),
-	prota("I want to live a fun life!"),
-	prota("..."), 
+	prota("Hmm..."),
+	prota("I would like to do something fun."),
+	
+	jump("in the train"),
+]);
+
+chapter("in the train", () => [
 	bg("train"),
+	music("Moar BGM"),
+	
+	prota("..."),
 	prota("..."),
 	char("p", "IT'S A ANIME WORLD???"),
+	
 	show("b"),
 	char("b", "Yes, you are in a Visual Novel"),
-	jump("stranger things"),
+
+	jump("stranger things")
 ]);
 
 chapter("stranger things", () => [
 	prota("A beautiful girl just appeared in front of me"),
 	char("b", "My eyes are here, generic protagonist"),
+
+	show("m", "left"),
+	char("m", "ohhi"),
+	char("m", "welcome to KaNovel"),
+	char("m", "now it's your turn to make your own story"),
+
+	burpy(),
 ]);
 
 // Go to menu scene

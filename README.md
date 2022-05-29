@@ -54,6 +54,8 @@ go("vn");
 This template are using...
 
 * Kaboom as the core of all the process 🕵🏻
-* Beany is a modification of [Agustina](https://dejinyucu.itch.io/agustina-visual-novel-sprite) by [Dejinyucu](dejinyucu.itch.io)
+* All the [music](https://lunalucid.itch.io/free-creative-commons-bgm-collection) by [LunaLucid](https://lunalucid.itch.io/)
+* Beany is a modification of [Agustina](https://dejinyucu.itch.io/agustina-visual-novel-sprite) by [Dejinyucu](https://dejinyucu.itch.io)
+* Marky is a modification of [Saki](https://liah0227.itch.io/saki) by [Liah0227](https://liah0227.itch.io)
 * Backgrounds by Noraneko Games
 * APL386 font for the logo text by abrudz

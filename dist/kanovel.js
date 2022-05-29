@@ -33,6 +33,7 @@
     }
     __name(write, "write");
     function showCharacter(char, align = "center") {
+      nextEvent();
       let charPos = k.vec2(0, 0);
       if (align === "center")
         charPos = k.center();
@@ -51,6 +52,7 @@
     }
     __name(showCharacter, "showCharacter");
     function changeBackground(spr) {
+      nextEvent();
       k.every("bg", (bg) => {
         bg.use(k.lifespan(1, { fade: 0.5 }));
       });
@@ -71,27 +73,28 @@
         throw new Error(`"${chapter} chapter don't exists!"`);
       this.curChapter = chapter;
       this.curEvent = -1;
+      nextEvent();
     }
     __name(changeChapter, "changeChapter");
+    function playBGMusic(song) {
+      nextEvent();
+      k.play(song, { loop: true });
+    }
+    __name(playBGMusic, "playBGMusic");
     function nextEvent() {
-      console.log(this.chapters.get(this.curChapter)[this.curEvent], this.curEvent);
+      if (this.textbox.text !== this.curDialog)
+        return;
       this.curEvent++;
       runEvent(this.chapters.get(this.curChapter)[this.curEvent]);
     }
     __name(nextEvent, "nextEvent");
-    function runEvent(e) {
-      if (!e)
-        k.go("menu");
-      if (e.toWrite)
-        write(e.toWrite, e.char ? e.char : "");
-      if (e.showChar)
-        showCharacter(e.showChar, e.charAlign);
-      if (e.showBg)
-        changeBackground(e.showBg);
-      if (e.changeToChapter)
-        changeChapter(e.changeToChapter);
-      if (e.canSkip)
-        nextEvent();
+    function runEvent(event) {
+      if (event.length) {
+        for (const e of event)
+          this.runEvent(e);
+      } else {
+        event();
+      }
     }
     __name(runEvent, "runEvent");
     k.scene("vn", (data) => {
@@ -105,7 +108,10 @@
       ]);
       k.onLoad(() => {
         this.textbox = k.add([
-          k.text("", { size: 30, width: textboxBG.width - 50 }),
+          k.text("", {
+            size: 30,
+            width: textboxBG.width - 70
+          }),
           k.layer("textbox"),
           k.z(1),
           k.pos(textboxBG.pos.sub(textboxBG.width / 2 - 50, textboxBG.height - 30))
@@ -116,6 +122,7 @@
           k.z(2),
           k.pos(textboxBG.pos.sub(textboxBG.width / 2 - 30, textboxBG.height + 30))
         ]);
+        nextEvent();
       });
       k.onUpdate(() => {
         if (k.isMousePressed() || k.isKeyPressed("space")) {
@@ -144,33 +151,26 @@
         return this.chapters.set(title, events());
       },
       prota(dialog) {
-        return {
-          toWrite: dialog
-        };
+        return () => write(dialog);
       },
       char(id, dialog) {
-        return {
-          toWrite: dialog,
-          char: this.characters.get(id)
-        };
+        return () => write(dialog, this.characters.get(id));
       },
       show(charId, align = "center") {
-        return {
-          showChar: this.characters.get(charId),
-          charAlign: align,
-          canSkip: true
-        };
+        return () => showCharacter(this.characters.get(charId), align);
       },
       bg(sprite) {
-        return {
-          showBg: sprite,
-          canSkip: true
-        };
+        return () => changeBackground(sprite);
       },
       jump(chapter) {
-        return {
-          changeToChapter: chapter,
-          canSkip: true
+        return () => changeChapter(chapter);
+      },
+      music(song) {
+        return () => playBGMusic(song);
+      },
+      burpy() {
+        return () => {
+          k.burp();
         };
       }
     };

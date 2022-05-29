@@ -3,29 +3,56 @@ The menu scene made in Kaboom
 */
 
 export default () => scene("menu", () => {
+	const bgm = play("Dubious", { loop: true })
+
 	add([
-		text("KaNovel\nTemplate"),
+		sprite("kanovel"),
+		origin("center"),
+		pos(center()),
+	]);
+	
+	add([
+		text("KaNovel"),
 		origin("center"),
 		pos(center()),
 	]);
 
-	const btn = add([
+	add([
+		text("Template"),
+		origin("center"),
+		pos(center().add(0, 60)),
+	]);
+
+	add([
 		text("Play!", { size: 50, }),
 		origin("center"),
 		pos(width() / 2, height() - 40),
 		area(),
+		"btn",
+		{
+			scene: "vn",
+		}
 	]);
 
-	btn.onUpdate(() => {
+	add([
+		text("Load!", { size: 50, }),
+		origin("center"),
+		pos(width() / 4, height() - 40),
+		area(),
+		"btn",
+		{
+			scene: "saveload",
+		}
+	]);
+
+	onUpdate("btn", (btn) => {
 		if (btn.isHovering()) btn.scale = vec2(1.2);
 		else btn.scale = vec2(1);
 
 		if (btn.isClicked()) {
-			go("vn");
+			bgm.stop();
+			
+			go(btn.scene);
 		}
 	})
-	
-	onUpdate(() => {
-		if(isKeyPressed("space")) go("vn");
-	});
 });
