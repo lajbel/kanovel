@@ -1,6 +1,26 @@
 (() => {
   var __defProp = Object.defineProperty;
   var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+  var __async = (__this, __arguments, generator) => {
+    return new Promise((resolve, reject) => {
+      var fulfilled = (value) => {
+        try {
+          step(generator.next(value));
+        } catch (e) {
+          reject(e);
+        }
+      };
+      var rejected = (value) => {
+        try {
+          step(generator.throw(value));
+        } catch (e) {
+          reject(e);
+        }
+      };
+      var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+      step((generator = generator.apply(__this, __arguments)).next());
+    });
+  };
 
   // code/kanovel.ts
   function fade() {
@@ -18,20 +38,37 @@
   }
   __name(fade, "fade");
   function kanovelPlugin(k) {
-    function write(dialog, char) {
-      this.textbox.text = "";
-      if (char) {
-        this.namebox.text = char.name;
-        this.curDialog = '"' + dialog + '"';
-      } else {
-        this.namebox.text = "";
-        this.curDialog = dialog;
-      }
-      for (let i = 0; i < this.curDialog.length; i++) {
-        k.wait(0.05 * i, () => this.textbox.text += this.curDialog[i]);
-      }
+    let config;
+    function write(dialog, character) {
+      return __async(this, null, function* () {
+        this.skip = false;
+        this.textbox.text = "";
+        let curCh = 0;
+        if (character) {
+          this.namebox.text = character.name;
+          this.curDialog = '"' + dialog + '"';
+        } else {
+          this.namebox.text = "";
+          this.curDialog = dialog;
+        }
+        for (let i = 0; i < this.curDialog.length; i++) {
+          if (this.skip)
+            break;
+          yield k.wait(0.05, () => {
+            if (this.skip)
+              return;
+            this.textbox.text += this.curDialog[i];
+          });
+        }
+      });
     }
     __name(write, "write");
+    function skipText() {
+      this.skip = true;
+      this.textbox.text = this.curDialog;
+    }
+    __name(skipText, "skipText");
+    ;
     function showCharacter(char, align = "center") {
       nextEvent();
       let charPos = k.vec2(0, 0);
@@ -78,12 +115,13 @@
     __name(changeChapter, "changeChapter");
     function playBGMusic(song) {
       nextEvent();
-      k.play(song, { loop: true });
+      const bgm = k.play(song, { loop: true });
+      this.curPlaying.push(bgm);
     }
     __name(playBGMusic, "playBGMusic");
     function nextEvent() {
       if (this.textbox.text !== this.curDialog)
-        return;
+        return skipText();
       this.curEvent++;
       runEvent(this.chapters.get(this.curChapter)[this.curEvent]);
     }
@@ -98,14 +136,26 @@
     }
     __name(runEvent, "runEvent");
     k.scene("vn", (data) => {
+      var _a;
+      let textboxBG;
       k.layers(["backgrounds", "characters", "textbox"]);
-      const textboxBG = k.add([
-        k.sprite("textbox"),
-        k.origin("bot"),
-        k.layer("textbox"),
-        k.z(0),
-        k.pos(k.width() / 2, k.height() - 20)
-      ]);
+      if ((_a = config.textbox) == null ? void 0 : _a.sprite) {
+        textboxBG = k.add([
+          k.sprite("textbox"),
+          k.origin("bot"),
+          k.layer("textbox"),
+          k.z(0),
+          k.pos(k.width() / 2, k.height() - 20)
+        ]);
+      } else {
+        textboxBG = k.add([
+          k.rect(config.width || k.width(), config.height || k.height() / 4),
+          k.origin("bot"),
+          k.layer("textbox"),
+          k.z(0),
+          k.pos(k.width() / 2, k.height() - 20)
+        ]);
+      }
       k.onLoad(() => {
         this.textbox = k.add([
           k.text("", {
@@ -136,7 +186,10 @@
       curDialog: "",
       curChapter: "start",
       curEvent: -1,
-      kanovel(config) {
+      curPlaying: [],
+      skip: false,
+      kanovel(c) {
+        config = c;
       },
       character(id, name, sprite) {
         return this.characters.set(id, {
@@ -168,9 +221,11 @@
       music(song) {
         return () => playBGMusic(song);
       },
-      burpy() {
+      burpy(endScene = "end") {
         return () => {
           k.burp();
+          this.curPlaying.forEach((a) => a.stop());
+          k.go(endScene);
         };
       }
     };

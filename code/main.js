@@ -3,7 +3,8 @@
 import kaboom from "kaboom";
 import kanovelPlugin from "./kanovel";
 import loadAssets from "./loader";
-import loadMenu from "./menu"
+import loadMenu from "./menu";
+import loadEnd from "./end";
 
 kaboom({
 	width: 800,
@@ -15,12 +16,15 @@ kaboom({
 	letterbox: true,
 });
 
-// kanovel({
-// 	textboxSprite: "textbox"
-// });
+kanovel({
+	textbox: {
+		sprite: "textbox",
+	}
+});
 
 loadAssets();
 loadMenu();
+loadEnd();
 
 // Characters for use in the narration
 

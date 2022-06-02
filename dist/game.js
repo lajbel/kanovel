@@ -1,6 +1,26 @@
 (() => {
   var __defProp = Object.defineProperty;
   var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+  var __async = (__this, __arguments, generator) => {
+    return new Promise((resolve, reject) => {
+      var fulfilled = (value) => {
+        try {
+          step(generator.next(value));
+        } catch (e) {
+          reject(e);
+        }
+      };
+      var rejected = (value) => {
+        try {
+          step(generator.throw(value));
+        } catch (e) {
+          reject(e);
+        }
+      };
+      var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+      step((generator = generator.apply(__this, __arguments)).next());
+    });
+  };
 
   // node_modules/kaboom/dist/kaboom.mjs
   var ir = Object.defineProperty;
@@ -2928,20 +2948,37 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
   }
   __name(fade, "fade");
   function kanovelPlugin(k2) {
-    function write(dialog, char2) {
-      this.textbox.text = "";
-      if (char2) {
-        this.namebox.text = char2.name;
-        this.curDialog = '"' + dialog + '"';
-      } else {
-        this.namebox.text = "";
-        this.curDialog = dialog;
-      }
-      for (let i = 0; i < this.curDialog.length; i++) {
-        k2.wait(0.05 * i, () => this.textbox.text += this.curDialog[i]);
-      }
+    let config;
+    function write(dialog, character2) {
+      return __async(this, null, function* () {
+        this.skip = false;
+        this.textbox.text = "";
+        let curCh = 0;
+        if (character2) {
+          this.namebox.text = character2.name;
+          this.curDialog = '"' + dialog + '"';
+        } else {
+          this.namebox.text = "";
+          this.curDialog = dialog;
+        }
+        for (let i = 0; i < this.curDialog.length; i++) {
+          if (this.skip)
+            break;
+          yield k2.wait(0.05, () => {
+            if (this.skip)
+              return;
+            this.textbox.text += this.curDialog[i];
+          });
+        }
+      });
     }
     __name(write, "write");
+    function skipText() {
+      this.skip = true;
+      this.textbox.text = this.curDialog;
+    }
+    __name(skipText, "skipText");
+    ;
     function showCharacter(char2, align = "center") {
       nextEvent();
       let charPos = k2.vec2(0, 0);
@@ -2988,12 +3025,13 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     __name(changeChapter, "changeChapter");
     function playBGMusic(song) {
       nextEvent();
-      k2.play(song, { loop: true });
+      const bgm = k2.play(song, { loop: true });
+      this.curPlaying.push(bgm);
     }
     __name(playBGMusic, "playBGMusic");
     function nextEvent() {
       if (this.textbox.text !== this.curDialog)
-        return;
+        return skipText();
       this.curEvent++;
       runEvent(this.chapters.get(this.curChapter)[this.curEvent]);
     }
@@ -3008,14 +3046,26 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     }
     __name(runEvent, "runEvent");
     k2.scene("vn", (data) => {
+      var _a;
+      let textboxBG;
       k2.layers(["backgrounds", "characters", "textbox"]);
-      const textboxBG = k2.add([
-        k2.sprite("textbox"),
-        k2.origin("bot"),
-        k2.layer("textbox"),
-        k2.z(0),
-        k2.pos(k2.width() / 2, k2.height() - 20)
-      ]);
+      if ((_a = config.textbox) == null ? void 0 : _a.sprite) {
+        textboxBG = k2.add([
+          k2.sprite("textbox"),
+          k2.origin("bot"),
+          k2.layer("textbox"),
+          k2.z(0),
+          k2.pos(k2.width() / 2, k2.height() - 20)
+        ]);
+      } else {
+        textboxBG = k2.add([
+          k2.rect(config.width || k2.width(), config.height || k2.height() / 4),
+          k2.origin("bot"),
+          k2.layer("textbox"),
+          k2.z(0),
+          k2.pos(k2.width() / 2, k2.height() - 20)
+        ]);
+      }
       k2.onLoad(() => {
         this.textbox = k2.add([
           k2.text("", {
@@ -3046,7 +3096,10 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
       curDialog: "",
       curChapter: "start",
       curEvent: -1,
-      kanovel(config) {
+      curPlaying: [],
+      skip: false,
+      kanovel(c) {
+        config = c;
       },
       character(id, name, sprite2) {
         return this.characters.set(id, {
@@ -3078,9 +3131,11 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
       music(song) {
         return () => playBGMusic(song);
       },
-      burpy() {
+      burpy(endScene = "end") {
         return () => {
           k2.burp();
+          this.curPlaying.forEach((a2) => a2.stop());
+          k2.go(endScene);
         };
       }
     };
@@ -3127,16 +3182,6 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
         scene: "vn"
       }
     ]);
-    add([
-      text("Load!", { size: 50 }),
-      origin("center"),
-      pos(width() / 4, height() - 40),
-      area(),
-      "btn",
-      {
-        scene: "saveload"
-      }
-    ]);
     onUpdate("btn", (btn) => {
       if (btn.isHovering())
         btn.scale = vec2(1.2);
@@ -3149,6 +3194,19 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     });
   }), "default");
 
+  // code/end.js
+  var end_default = /* @__PURE__ */ __name(() => scene("end", () => {
+    add([
+      rect(width(), height()),
+      color(0, 0, 0)
+    ]);
+    add([
+      text("The End"),
+      origin("center"),
+      pos(center())
+    ]);
+  }), "default");
+
   // code/main.js
   no({
     width: 800,
@@ -3158,8 +3216,14 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     stretch: true,
     letterbox: true
   });
+  kanovel({
+    textbox: {
+      sprite: "textbox"
+    }
+  });
   loadAssets();
   menu_default();
+  end_default();
   character("p", "A Replit User (YOU)");
   character("b", "Beany", "beany");
   character("m", "Marky", "marky");

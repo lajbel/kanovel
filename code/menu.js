@@ -34,16 +34,16 @@ export default () => scene("menu", () => {
 		}
 	]);
 
-	add([
-		text("Load!", { size: 50, }),
-		origin("center"),
-		pos(width() / 4, height() - 40),
-		area(),
-		"btn",
-		{
-			scene: "saveload",
-		}
-	]);
+	// add([
+	// 	text("Load!", { size: 50, }),
+	// 	origin("center"),
+	// 	pos(width() / 4, height() - 40),
+	// 	area(),
+	// 	"btn",
+	// 	{
+	// 		scene: "saveload",
+	// 	}
+	// ]);
 
 	onUpdate("btn", (btn) => {
 		if (btn.isHovering()) btn.scale = vec2(1.2);
