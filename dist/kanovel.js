@@ -257,6 +257,12 @@
           exe: () => write(dialog)
         };
       },
+      narrator(dialog) {
+        return {
+          id: "narrator",
+          exe: () => write(dialog)
+        };
+      },
       char(id, dialog) {
         return {
           id: "dialog",

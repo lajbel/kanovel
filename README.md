@@ -29,7 +29,7 @@ character("m", "Marky", "marky");
 
 // The start chapter 
 chapter("start", () => [
-    // Write as the protagonist, or you can use it like a narrator
+    // Write as the protagonist
     prota("Two beautiful girls stare at me.");
 
     // Show & Talk as a character
@@ -53,7 +53,7 @@ go("vn");
 ## Credits
 This template are using...
 
-* Kaboom as the core of all the process 🕵🏻
+* [Kaboom](https://kaboomjs.com) as the core of all the process 🕵🏻
 * All the [music](https://lunalucid.itch.io/free-creative-commons-bgm-collection) by [LunaLucid](https://lunalucid.itch.io/)
 * Beany is a modification of [Agustina](https://dejinyucu.itch.io/agustina-visual-novel-sprite) by [Dejinyucu](https://dejinyucu.itch.io)
 * Marky is a modification of [Saki](https://liah0227.itch.io/saki) by [Liah0227](https://liah0227.itch.io)

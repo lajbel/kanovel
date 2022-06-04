@@ -3167,6 +3167,12 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
           exe: () => write(dialog)
         };
       },
+      narrator(dialog) {
+        return {
+          id: "narrator",
+          exe: () => write(dialog)
+        };
+      },
       char(id, dialog) {
         return {
           id: "dialog",
@@ -3301,7 +3307,7 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
   character("b", "Beany", "beany");
   character("m", "Marky", "marky");
   chapter("start", () => [
-    prota("a beautiful night of butterflies"),
+    prota("Ohh today is a great day!"),
     prota("Hmm..."),
     prota("I would like to do something fun."),
     jump("in the train")

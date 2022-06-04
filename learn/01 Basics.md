@@ -36,7 +36,7 @@ Now, the normal thing would be to have a protagonist or a narrator, you're in lu
 You can speak as the protagonsit with `prota()` function
 ```js
 chapter("start", () => [
-	prota("a beautiful night of butterflies"),
+    prota("a beautiful night of butterflies"),
 ]);
 ```
 
@@ -44,7 +44,7 @@ Or if you want use a narrator, you can use `narrator()` (although it is relative
 
 ```js
 chapter("start", () => [
-	narrator("a beautiful night of butterflies"),
+    narrator("a beautiful night of butterflies"),
 ]);
 ```
 
@@ -58,7 +58,7 @@ To use characters, we must first define them, for that there is `character()`, w
 character("m", "Marky");
 
 chapter("start", () => [
-	narrator("a beautiful night of butterflies"),
+    narrator("a beautiful night of butterflies"),
 ]);
 ```
 
