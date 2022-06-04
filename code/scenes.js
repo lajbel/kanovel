@@ -2,7 +2,7 @@
 The menu scene made in Kaboom
 */
 
-export default () => scene("menu", () => {
+const loadMenu = () => scene("menu", () => {
 	const bgm = play("Dubious", { loop: true })
 
 	add([
@@ -56,3 +56,23 @@ export default () => scene("menu", () => {
 		}
 	})
 });
+
+const loadEnd = () => scene("end", () => {
+	add([
+		rect(width(), height()),
+		color(0, 0, 0),
+	]);
+	
+	add([
+		text("The End"),
+		origin("center"),
+		pos(center()),
+	]);
+});
+
+// Exports
+
+export {
+    loadMenu,
+    loadEnd,
+}

@@ -94,9 +94,14 @@ declare global {
 	): void;
 
 	/**
-	 * Write as the protagonist or a narrator
+	 * Write as the protagonist
 	 */
 	function prota(dialog: string): void;
+
+    /**
+	 * Write as the narrator
+	 */
+	function narrator(dialog: string): void;
 
 	/**
 	 * Write as a character
@@ -437,6 +442,13 @@ export default function kanovelPlugin(k: KaboomCtx) {
 		prota(dialog: string) {
 			return {
 				id: "prota",
+				exe: () => write(dialog)
+			}
+		},
+
+        narrator(dialog: string) {
+			return {
+				id: "narrator",
 				exe: () => write(dialog)
 			}
 		},

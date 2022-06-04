@@ -1,9 +1,6 @@
 /*
 Here you can load all assets for your Visual Novel! you only need
-use the Kaboom's functions
-
-loadSprite
-loadAudio
+use the Kaboom's functions as loadSprite and loadSound
 */
 
 export default function loadAssets() {

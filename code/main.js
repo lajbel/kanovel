@@ -3,8 +3,8 @@
 import kaboom from "kaboom";
 import kanovelPlugin from "./kanovel";
 import loadAssets from "./loader";
-import loadMenu from "./menu";
-import loadEnd from "./end";
+
+import { loadMenu, loadEnd } from "./scenes";
 
 kaboom({
 	width: 800,
@@ -34,7 +34,7 @@ character("m", "Marky", "marky");
 // The "start" chapter for your novel 🚩
 
 chapter("start", () => [
-	prota("Ohh today is a great day!"),
+	prota("a beautiful night of butterflies"),
 	prota("Hmm..."),
 	prota("I would like to do something fun."),
 	

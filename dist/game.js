@@ -3230,8 +3230,8 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
   }
   __name(loadAssets, "loadAssets");
 
-  // code/menu.js
-  var menu_default = /* @__PURE__ */ __name(() => scene("menu", () => {
+  // code/scenes.js
+  var loadMenu = /* @__PURE__ */ __name(() => scene("menu", () => {
     const bgm = play("Dubious", { loop: true });
     add([
       sprite("kanovel"),
@@ -3268,10 +3268,8 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
         go(btn.scene);
       }
     });
-  }), "default");
-
-  // code/end.js
-  var end_default = /* @__PURE__ */ __name(() => scene("end", () => {
+  }), "loadMenu");
+  var loadEnd = /* @__PURE__ */ __name(() => scene("end", () => {
     add([
       rect(width(), height()),
       color(0, 0, 0)
@@ -3281,7 +3279,7 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
       origin("center"),
       pos(center())
     ]);
-  }), "default");
+  }), "loadEnd");
 
   // code/main.js
   no({
@@ -3297,13 +3295,13 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     choice: { sprite: "choice" }
   });
   loadAssets();
-  menu_default();
-  end_default();
+  loadMenu();
+  loadEnd();
   character("p", "A Replit User (YOU)");
   character("b", "Beany", "beany");
   character("m", "Marky", "marky");
   chapter("start", () => [
-    prota("Ohh today is a great day!"),
+    prota("a beautiful night of butterflies"),
     prota("Hmm..."),
     prota("I would like to do something fun."),
     jump("in the train")
