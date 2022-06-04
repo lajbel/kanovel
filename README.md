@@ -29,15 +29,15 @@ character("m", "Marky", "marky");
 
 // The start chapter 
 chapter("start", () => [
-	// Write as the protagonist, or you can use it like a narrator
-	prota("Two beautiful girls stare at me.");
+    // Write as the protagonist, or you can use it like a narrator
+    prota("Two beautiful girls stare at me.");
 
-	// Show & Talk as a character
-	show("b", "left");
-	char("b", "Oh hi baby");
+    // Show & Talk as a character
+    show("b", "left");
+    char("b", "Oh hi baby");
  
-	show("m", "right");
-	char("m", "Hey, that's my line!");
+    show("m", "right");
+    char("m", "Hey, that's my line!");
 ]);
 
 // Start your Visual Novel game
