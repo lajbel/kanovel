@@ -18,9 +18,9 @@ import kanovelPlugin from "./kanovel";
 
 // Starts the Kaboom context
 export default kaboom({
-	width: 800,
-	height: 600,
-	plugins: [ kanovelPlugin ], // IMPORTANT: Load the KaNovel plugin
+    width: 800,
+    height: 600,
+    plugins: [ kanovelPlugin ], // IMPORTANT: Load the KaNovel plugin
 });
 
 // Define your characters with id, name and sprite
