@@ -17,6 +17,7 @@ kaboom({
 });
 
 kanovel({
+    scene: "kanovel",
 	textbox: { sprite: "textbox" },
 	choice: { sprite: "choice" },
 });
@@ -61,6 +62,7 @@ chapter("stranger things", () => [
 
 	show("m", "left"),
 	char("m", "ohhi"),
+    
 	char("m", "welcome to KaNovel"),
 	char("m", "do you like this visual novel?"),
 	
