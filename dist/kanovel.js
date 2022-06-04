@@ -39,11 +39,18 @@
   __name(fade, "fade");
   function kanovelPlugin(k) {
     let config;
+    const layers = {
+      bg: 0,
+      chars: 1,
+      textbox: 2,
+      text: 3,
+      name: 4,
+      choices: 5
+    };
     function write(dialog, character) {
       return __async(this, null, function* () {
         this.skip = false;
         this.textbox.text = "";
-        let curCh = 0;
         if (character) {
           this.namebox.text = character.name;
           this.curDialog = '"' + dialog + '"';
@@ -69,6 +76,46 @@
     }
     __name(skipText, "skipText");
     ;
+    function addChoices(choices) {
+      var _a, _b;
+      const basePos = k.vec2(k.width() / 2, k.height() / 4);
+      let lastChoice;
+      for (let i = 0; i < choices.length; i++) {
+        lastChoice = k.add([
+          ((_a = config.choice) == null ? void 0 : _a.sprite) ? k.sprite((_b = config.choice) == null ? void 0 : _b.sprite) : k.rect(k.width() - 40, k.height() / 8),
+          k.origin("center"),
+          k.pos(lastChoice ? lastChoice.pos.add(0, basePos.y) : basePos.clone()),
+          k.z(layers.choices),
+          k.area(),
+          "choice",
+          {
+            choice: i
+          }
+        ]);
+        k.add([
+          k.text(choices[i][0]),
+          k.origin("center"),
+          k.pos(lastChoice.pos.clone()),
+          k.z(layers.choices),
+          "choiceText"
+        ]);
+        const cancelChoice = k.onUpdate("choice", (c) => {
+          if (c.isClicked()) {
+            k.every("choice", k.destroy);
+            k.every("choiceText", k.destroy);
+            checkChoice(choices[c.choice]);
+            return cancelChoice();
+          }
+        });
+      }
+    }
+    __name(addChoices, "addChoices");
+    ;
+    function checkChoice(choice) {
+      runEvent(choice[1]);
+    }
+    __name(checkChoice, "checkChoice");
+    ;
     function showCharacter(char, align = "center") {
       nextEvent();
       let charPos = k.vec2(0, 0);
@@ -83,7 +130,7 @@
         k.opacity(0),
         k.origin("center"),
         k.pos(charPos),
-        k.layer("characters"),
+        k.z(layers.chars),
         fade()
       ]);
     }
@@ -98,8 +145,7 @@
         k.opacity(0),
         k.origin("center"),
         k.pos(k.center()),
-        k.z(0),
-        k.layer("backgrounds"),
+        k.z(layers.bg),
         "bg",
         fade()
       ]);
@@ -120,39 +166,43 @@
     }
     __name(playBGMusic, "playBGMusic");
     function nextEvent() {
+      if (k.get("choice").length)
+        return;
       if (this.textbox.text !== this.curDialog)
         return skipText();
       this.curEvent++;
-      runEvent(this.chapters.get(this.curChapter)[this.curEvent]);
+      runEvent(this.chapters.get(this.curChapter)[this.curEvent], this.chapters.get(this.curChapter)[this.curEvent + 1]);
     }
     __name(nextEvent, "nextEvent");
-    function runEvent(event) {
-      if (event.length) {
-        for (const e of event)
-          this.runEvent(e);
-      } else {
-        event();
-      }
+    function runEvent(event, next) {
+      return __async(this, null, function* () {
+        if (event.length) {
+          for (const e of event)
+            runEvent(e, this.chapters.get(this.curChapter)[this.curEvent + 1]);
+        } else {
+          yield event.exe();
+          if ((next == null ? void 0 : next.id) === "choice")
+            nextEvent();
+        }
+        console.log(event.id, next.id);
+      });
     }
     __name(runEvent, "runEvent");
     k.scene("vn", (data) => {
       var _a;
       let textboxBG;
-      k.layers(["backgrounds", "characters", "textbox"]);
       if ((_a = config.textbox) == null ? void 0 : _a.sprite) {
         textboxBG = k.add([
           k.sprite("textbox"),
           k.origin("bot"),
-          k.layer("textbox"),
-          k.z(0),
+          k.z(layers.textbox),
           k.pos(k.width() / 2, k.height() - 20)
         ]);
       } else {
         textboxBG = k.add([
           k.rect(config.width || k.width(), config.height || k.height() / 4),
           k.origin("bot"),
-          k.layer("textbox"),
-          k.z(0),
+          k.z(layers.textbox),
           k.pos(k.width() / 2, k.height() - 20)
         ]);
       }
@@ -162,14 +212,12 @@
             size: 30,
             width: textboxBG.width - 70
           }),
-          k.layer("textbox"),
-          k.z(1),
+          k.z(layers.text),
           k.pos(textboxBG.pos.sub(textboxBG.width / 2 - 50, textboxBG.height - 30))
         ]);
         this.namebox = k.add([
           k.text("", { size: 40 }),
-          k.layer("textbox"),
-          k.z(2),
+          k.z(layers.name),
           k.pos(textboxBG.pos.sub(textboxBG.width / 2 - 30, textboxBG.height + 30))
         ]);
         nextEvent();
@@ -204,28 +252,55 @@
         return this.chapters.set(title, events());
       },
       prota(dialog) {
-        return () => write(dialog);
+        return {
+          id: "prota",
+          exe: () => write(dialog)
+        };
       },
       char(id, dialog) {
-        return () => write(dialog, this.characters.get(id));
+        return {
+          id: "dialog",
+          exe: () => write(dialog, this.characters.get(id))
+        };
       },
       show(charId, align = "center") {
-        return () => showCharacter(this.characters.get(charId), align);
+        return {
+          id: "show",
+          exe: () => showCharacter(this.characters.get(charId), align)
+        };
+      },
+      choice(...choices) {
+        return {
+          id: "choice",
+          exe: () => addChoices(choices)
+        };
       },
       bg(sprite) {
-        return () => changeBackground(sprite);
+        return {
+          id: "bg",
+          exe: () => changeBackground(sprite)
+        };
       },
       jump(chapter) {
-        return () => changeChapter(chapter);
+        return {
+          id: "jump",
+          exe: () => changeChapter(chapter)
+        };
       },
       music(song) {
-        return () => playBGMusic(song);
+        return {
+          id: "music",
+          exe: () => playBGMusic(song)
+        };
       },
       burpy(endScene = "end") {
-        return () => {
-          k.burp();
-          this.curPlaying.forEach((a) => a.stop());
-          k.go(endScene);
+        return {
+          id: "burpy",
+          exe: () => {
+            k.burp();
+            this.curPlaying.forEach((a) => a.stop());
+            k.go(endScene);
+          }
         };
       }
     };

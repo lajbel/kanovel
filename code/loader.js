@@ -8,6 +8,7 @@ loadAudio
 
 export default function loadAssets() {
 	loadSprite("textbox", "sprites/textbox.png");
+	loadSprite("choice", "sprites/choice.png");
 	loadSprite("train", "sprites/train.png");
 	loadSprite("beany", "sprites/beany.png");
 	loadSprite("marky", "sprites/marky.png");

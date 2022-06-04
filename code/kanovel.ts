@@ -19,8 +19,13 @@ interface TextboxOpt {
 	height?: number;
 }
 
+interface ChoiceOpt {
+	sprite: string;
+}
+
 interface KaNovelOpt {
 	textbox: TextboxOpt;
+	choice: ChoiceOpt;
 }
 
 declare global {
@@ -134,6 +139,16 @@ declare global {
 		*/
 		song: string,
 	): void;
+
+	/**
+	 * Create a choice
+	*/
+	function choice(
+		/**
+		 * Cnoices
+		*/
+		...choices: any[],
+	): void;
 }
 
 // Custom Components
@@ -161,11 +176,19 @@ export default function kanovelPlugin(k: KaboomCtx) {
 
 	let config;
 
+	// later...
+	const layers = {
+		bg: 0,
+		chars: 1,
+		textbox: 2,
+		text: 3,
+		name: 4,
+		choices: 5,
+	};
+
 	async function write(dialog: string, character?: Character) {
 		this.skip = false;
 		this.textbox.text = "";
-
-		let curCh = 0;
 
 		if (character) {
 			this.namebox.text = character.name;
@@ -175,13 +198,13 @@ export default function kanovelPlugin(k: KaboomCtx) {
 			this.namebox.text = "";
 			this.curDialog = dialog;
 		}
-		
+
 		for (let i = 0; i < this.curDialog.length; i++) {
-			if(this.skip) break;
-			
+			if (this.skip) break;
+
 			await k.wait(0.05, () => {
-				if(this.skip) return;
-				
+				if (this.skip) return;
+
 				this.textbox.text += this.curDialog[i];
 			});
 		}
@@ -191,6 +214,50 @@ export default function kanovelPlugin(k: KaboomCtx) {
 		this.skip = true;
 
 		this.textbox.text = this.curDialog;
+	};
+
+	function addChoices(choices) {
+		const basePos = k.vec2(k.width() / 2, k.height() / 4);
+		let lastChoice;
+
+		for (let i = 0; i < choices.length; i++) {
+			lastChoice = k.add([
+				config.choice?.sprite ?
+					k.sprite(config.choice?.sprite) :
+					k.rect(k.width() - 40, k.height() / 8),
+				k.origin("center"),
+				k.pos(lastChoice ? lastChoice.pos.add(0, basePos.y) : basePos.clone()),
+				k.z(layers.choices),
+				k.area(),
+				"choice",
+				{
+					choice: i,
+				}
+			]);
+
+			k.add([
+				k.text(choices[i][0]),
+				k.origin("center"),
+				k.pos(lastChoice.pos.clone()),
+				k.z(layers.choices),
+				"choiceText"
+			]);
+
+			const cancelChoice = k.onUpdate("choice", (c) => {
+				if (c.isClicked()) {
+					k.every("choice", k.destroy);
+					k.every("choiceText", k.destroy);
+
+					checkChoice(choices[c.choice]);
+					
+					return cancelChoice();
+				}
+			});
+		}
+	};
+
+	function checkChoice(choice) {
+		runEvent(choice[1]);
 	};
 
 	function showCharacter(char: Character, align: "center" | "left" | "right" = "center") {
@@ -207,7 +274,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
 			k.opacity(0),
 			k.origin("center"),
 			k.pos(charPos),
-			k.layer("characters"),
+			k.z(layers.chars),
 
 			fade(),
 		]);
@@ -225,8 +292,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
 			k.opacity(0),
 			k.origin("center"),
 			k.pos(k.center()),
-			k.z(0),
-			k.layer("backgrounds"),
+			k.z(layers.bg),
 			"bg",
 
 			fade(),
@@ -251,19 +317,25 @@ export default function kanovelPlugin(k: KaboomCtx) {
 	}
 
 	function nextEvent() {
+		if (k.get("choice").length) return;
 		if (this.textbox.text !== this.curDialog) return skipText();
 
 		this.curEvent++;
-		runEvent(this.chapters.get(this.curChapter)[this.curEvent]);
+
+		runEvent(this.chapters.get(this.curChapter)[this.curEvent], this.chapters.get(this.curChapter)[this.curEvent + 1]);
 	}
 
-	function runEvent(event) {
+	async function runEvent(event, next?) {
 		if (event.length) {
-			for (const e of event) this.runEvent(e)
+			for (const e of event) runEvent(e, this.chapters.get(this.curChapter)[this.curEvent + 1])
 		}
 		else {
-			event();
+			await event.exe();
+
+			if (next?.id === "choice") nextEvent();
 		}
+
+		console.log(event.id, next.id)
 	}
 
 	// KANOVEL DEFAULT SCENE
@@ -271,14 +343,11 @@ export default function kanovelPlugin(k: KaboomCtx) {
 	k.scene("vn", (data) => {
 		let textboxBG;
 
-		k.layers(["backgrounds", "characters", "textbox"]);
-
 		if (config.textbox?.sprite) {
 			textboxBG = k.add([
 				k.sprite("textbox"),
 				k.origin("bot"),
-				k.layer("textbox"),
-				k.z(0),
+				k.z(layers.textbox),
 				k.pos(k.width() / 2, k.height() - 20),
 			]);
 		}
@@ -286,8 +355,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
 			textboxBG = k.add([
 				k.rect(config.width || k.width(), config.height || k.height() / 4),
 				k.origin("bot"),
-				k.layer("textbox"),
-				k.z(0),
+				k.z(layers.textbox),
 				k.pos(k.width() / 2, k.height() - 20),
 			]);
 		}
@@ -298,8 +366,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
 					size: 30,
 					width: textboxBG.width - 70,
 				}),
-				k.layer("textbox"),
-				k.z(1),
+				k.z(layers.text),
 				k.pos(
 					textboxBG.pos.sub(
 						textboxBG.width / 2 - 50 /*pad*/,
@@ -310,8 +377,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
 
 			this.namebox = k.add([
 				k.text("", { size: 40 }),
-				k.layer("textbox"),
-				k.z(2),
+				k.z(layers.name),
 				k.pos(
 					textboxBG.pos.sub(
 						textboxBG.width / 2 - 30,
@@ -369,37 +435,63 @@ export default function kanovelPlugin(k: KaboomCtx) {
 		// History making functions
 
 		prota(dialog: string) {
-			return () => write(dialog);
+			return {
+				id: "prota",
+				exe: () => write(dialog)
+			}
 		},
 
 		char(id: string, dialog: string) {
-			return () => write(dialog, this.characters.get(id));
+			return {
+				id: "dialog",
+				exe: () => write(dialog, this.characters.get(id)),
+			}
 		},
 
 		show(charId: string, align: "center" | "left" | "right" = "center") {
-			return () => showCharacter(this.characters.get(charId), align);
+			return {
+				id: "show",
+				exe: () => showCharacter(this.characters.get(charId), align),
+			}
+		},
+
+		choice(...choices) {
+			return {
+				id: "choice",
+				exe: () => addChoices(choices),
+			}
 		},
 
 		bg(sprite: string) {
-			return () => changeBackground(sprite);
+			return {
+				id: "bg",
+				exe: () => changeBackground(sprite),
+			}
 		},
 
 		jump(chapter: string) {
-			return () => changeChapter(chapter);
+			return {
+				id: "jump",
+				exe: () => changeChapter(chapter),
+			}
 		},
 
 		music(song: string) {
-			return () => playBGMusic(song);
+			return {
+				id: "music",
+				exe: () => playBGMusic(song),
+			}
 		},
 
 		burpy(endScene: string = "end") {
-			return () => {
-				k.burp();
-
-				this.curPlaying.forEach((a) => a.stop());
-
-				k.go(endScene);
-			};
+			return {
+				id: "burpy",
+				exe: () => {
+					k.burp();
+					this.curPlaying.forEach((a) => a.stop());
+					k.go(endScene);
+				},
+			}
 		}
 	};
 }
