@@ -342,7 +342,18 @@ export default function kanovelPlugin(k: KaboomCtx) {
 
         const bgm = k.play(song, { loop: true });
 
-        this.curPlaying.push(bgm);
+        this.curPlaying.set(bgm, bgm);
+    }
+
+    function stopMusic(id?: string) {
+        if(id) {
+            this.curPlaying.get(id)?.stop();
+        }
+        else {
+            this.curPlaying.forEach((id, audio) => {
+                audio.stop();
+            });
+        }
     }
 
     function nextEvent() {
@@ -426,7 +437,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
         curDialog: "",
         curChapter: "start",
         curEvent: -1,
-        curPlaying: [],
+        curPlaying: new Map(),
         skip: false,
 
         // Kanovel Config function
@@ -519,15 +530,28 @@ export default function kanovelPlugin(k: KaboomCtx) {
             }
         },
 
+        stop(id?: string) {
+            return {
+                id: "stop",
+                exe: () => stopMusic(id),
+            }
+        },
+
         burpy(endScene: string = "end") {
             return {
                 id: "burpy",
                 exe: () => {
                     k.burp();
-                    this.curPlaying.forEach((a) => a.stop());
+                    stopMusic();
                     k.go(endScene);
                 },
             }
+        },
+
+        // other things
+
+        saveGame() {
+            
         }
     };
 }
