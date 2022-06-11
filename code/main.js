@@ -26,6 +26,7 @@ character("m", "Marky", "marky");
 
 // The "start" chapter for your novel 🚩
 chapter("start", () => [
+    char("m", "yes..."),
 	prota("Ohh today is a great day!"),
 	prota("Hmm..."),
 	prota("I would like to do something fun."),

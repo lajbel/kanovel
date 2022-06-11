@@ -1,10 +1,10 @@
-## Kaboom 💥
+# Basics ⛳
 
-The first rule is that Kanovel is based on Kaboom, so we will start installing kaboom with `npm i kaboom@2000.2.8`
+KaNovel is too easy, but you need learn it first, don't worry, it's quite easy and fast. Here you will learn how to use KaNovel and start using the **Narration** in your novel
 
 ## Load Assets
 
-The second rule is to load assets, if you are using the Replit template, there will already be a couple of assets loaded in `loader`.
+The first rule is load assets, there will already be a couple of assets loaded in `loader`.
 
 ![image](images/DefaultAssets.png)
 
@@ -62,4 +62,17 @@ chapter("start", () => [
 ]);
 ```
 
-Ready!
+That's it! Now we can use `char()` to make she talk
+
+```js
+character("m", "Marky");
+
+chapter("start", () => [
+    narrator("a beautiful night of butterflies"),
+    char("yes..."),
+]);
+```
+
+![The name is drawn* in the textbox](images/Yes.png)
+
+*\* to see how to edit the text box see Customization*
