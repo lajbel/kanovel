@@ -41,7 +41,7 @@ function buildGame() {
 			sourcemap: true,
 			target: "es6",
 			keepNames: true,
-			entryPoints: ["code/kanovel.ts"],
+			entryPoints: ["kanovel.ts"],
 			outfile: "dist/kanovel.js",
 		});
 

@@ -7,7 +7,6 @@ hidden = [
 	"learn",
 	"dist",
 	"helper.ts",
-	"kanovel.ts",
 	"run.js",
 	"package.json",
 	"package-lock.json",

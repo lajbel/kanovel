@@ -1,6 +1,19 @@
-import { KaboomCtx, Vec2, GameObj } from "kaboom";
+// The KaNovel's plugin
+
+import { KaboomCtx, Vec2, GameObj, CompList } from "kaboom";
 
 // Typescript Definitions for KaNovel 💋
+
+type Position = [
+    /**
+     * X coordinate
+    */
+    number,
+    /**
+     * Y coordinate
+    */
+    number,
+]
 
 interface Character {
     name: string;
@@ -14,9 +27,62 @@ interface CharacterExpression {
 }
 
 interface TextboxOpt {
+    /**
+     * Kaboom loaded sprite for use in textbox
+    */
     sprite?: string;
+
+    /**
+     * Position of the Textbox
+    */
+    pos?: Position;
+
+    /**
+     * Width of the textbox
+    */
     width?: number;
+
+    /**
+     * Height of the textbox
+    */
     height?: number;
+
+    /**
+     * Size of the text of the textbox
+    */
+    size?: number;
+
+    /**
+     * Padding of the text of the textbox
+    */
+    padding?: [number, number];
+
+    /**
+     * Use custom components in the textbox game object
+    */
+    components?: CompList<any>;
+}
+
+interface NameboxOpt {
+    /**
+     * Kaboom loaded sprite for use in namebox
+    */
+    sprite?: string;
+
+    /**
+     * Width of the namebox
+    */
+    width?: number;
+
+    /**
+     * Height of the namebox
+    */
+    height?: number;
+
+    /**
+     * Use custom components in the namebox game object
+    */
+    components?: CompList<any>;
 }
 
 interface ChoiceOpt {
@@ -29,16 +95,17 @@ interface KaNovelOpt {
     */
     scene: string;
     textbox: TextboxOpt;
+    namebox: NameboxOpt;
     choice: ChoiceOpt;
 }
 
 declare global {
     /**
-     * Simply config your Visual Novel
+     * Load KaNovel's configuration
     */
     function kanovel(
         config: KaNovelOpt
-    );
+    ): void;
 
     /**
      * Define a Character
@@ -94,6 +161,9 @@ declare global {
      * Jump to other chapter
      */
     function jump(
+        /**
+         * Chapter to jump
+        */
         chapter: string
     ): void;
 
@@ -126,13 +196,13 @@ declare global {
     */
     function show(
         charId: string,
-        align: "center" | "left" | "right",
+        align?: "center" | "left" | "right" | Position,
     ): void;
 
     /**
      * Hide a character
     */
-    function show(
+    function hide(
         charId: string,
     ): void;
 
@@ -167,10 +237,10 @@ declare global {
     ): void;
 }
 
-// Custom Components
+// Custom Components and functions
 
 function fade() {
-    let timer = 0
+    let timer = 0;
 
     return {
         id: "fade",
@@ -190,6 +260,10 @@ function fade() {
     }
 }
 
+function array2Vec2(arr: number[]) {
+    return vec2(arr[0], arr[1]);
+}
+
 // KaNovel Plugin
 
 export default function kanovelPlugin(k: KaboomCtx) {
@@ -205,6 +279,42 @@ export default function kanovelPlugin(k: KaboomCtx) {
         name: 4,
         choices: 5,
     };
+
+    function addTextbox(conf?: TextboxOpt) {
+        const textboxWidth = conf?.width || k.width();
+        const textboxHeight = conf?.height || k.height() / 4;
+        const textboxPadding = array2Vec2(conf?.padding) || k.vec2(20, 20);
+
+        // textbox
+        const textboxBG = k.add([
+            conf.sprite ?
+                k.sprite(conf.sprite) :
+                k.rect(textboxWidth, textboxHeight),
+            k.origin("bot"),
+            k.z(layers.textbox),
+            k.pos(conf.pos ? array2Vec2(conf.pos) : k.vec2(k.width() / 2, k.height() - 20)),
+        ]);
+
+        // text
+        this.textbox = k.add([
+            k.text("", { size: conf.size | 30, width: textboxWidth }),
+            k.pos(textboxBG.pos.sub(
+                textboxBG.width / 2 - textboxPadding.x,
+                textboxBG.height - textboxPadding.y,
+            )),
+            k.z(layers.text),
+        ]);
+
+        // namebox
+        this.namebox = k.add([
+            k.text("", { size: 40 }),
+            k.pos(textboxBG.pos.sub(
+                textboxBG.width / 2 - 30,
+                textboxBG.height + 30
+            )),
+            k.z(layers.name),
+        ]);
+    }
 
     async function write(dialog: string, character?: Character) {
         this.skip = false;
@@ -280,7 +390,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
         runEvent(choice[1]);
     };
 
-    function showCharacter(char: Character, align: "center" | "left" | "right" = "center") {
+    function showCharacter(char: Character, align: "center" | "left" | "right" | Position = "center") {
         nextEvent();
 
         let charPos: Vec2 = k.vec2(0, 0);
@@ -288,7 +398,8 @@ export default function kanovelPlugin(k: KaboomCtx) {
         if (align === "center") charPos = k.center();
         else if (align === "left") charPos = k.vec2(k.width() / 4, k.height() / 2);
         else if (align === "right") charPos = k.vec2(k.width() / 2 + k.width() / 4, k.height() / 2);
-
+        else if (align) charPos = array2Vec2(align);
+            
         k.add([
             k.sprite(char.sprite),
             k.opacity(0),
@@ -346,7 +457,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
     }
 
     function stopMusic(id?: string) {
-        if(id) {
+        if (id) {
             this.curPlaying.get(id)?.stop();
         }
         else {
@@ -379,44 +490,11 @@ export default function kanovelPlugin(k: KaboomCtx) {
     // KANOVEL SCENE
 
     k.onLoad(() => {
-        k.scene(config.scene || "kanovel", (data) => {
-            let textboxBG = k.add([
-                config.textbox?.sprite ? 
-                    k.sprite("textbox") :
-                    k.rect(config.textbox?.width || k.width(), config.textbox?.height || k.height() / 4),
-                k.origin("bot"),
-                k.z(layers.textbox),
-                k.pos(k.width() / 2, k.height() - 20),
-            ]);;
+        k.scene(config?.scene || "kanovel", (data) => {
+            if(config?.textbox) addTextbox(config.textbox);
+            else addTextbox();
 
-            k.onLoad(() => {
-                this.textbox = k.add([
-                    k.text("", {
-                        size: 30,
-                        width: config.textbox?.width || textboxBG.width,
-                    }),
-                    k.z(layers.text),
-                    k.pos(
-                        textboxBG.pos.sub(
-                            textboxBG.width / 2 - 50 /*pad*/,
-                            textboxBG.height - 30 /*pad*/
-                        )
-                    ),
-                ]);
-
-                this.namebox = k.add([
-                    k.text("", { size: 40 }),
-                    k.z(layers.name),
-                    k.pos(
-                        textboxBG.pos.sub(
-                            textboxBG.width / 2 - 30,
-                            textboxBG.height + 30
-                        )
-                    ),
-                ]);
-
-                nextEvent();
-            });
+            k.onLoad(nextEvent);
 
             // Default input for Visual Novel
 
@@ -438,9 +516,10 @@ export default function kanovelPlugin(k: KaboomCtx) {
         curChapter: "start",
         curEvent: -1,
         curPlaying: new Map(),
+        history: [],
         skip: false,
 
-        // Kanovel Config function
+        // Kanovel function
 
         kanovel(c: KaNovelOpt) {
             config = c;
@@ -551,7 +630,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
         // other things
 
         saveGame() {
-            
+
         }
     };
 }

@@ -1,6 +1,5 @@
-/*
-The menu scene made in Kaboom
-*/
+// Some scenes of the Kanovel template, feel free of edit all and make more scenes
+// for your perfect visual novel game
 
 const loadMenu = () => scene("menu", () => {
 	const bgm = play("Dubious", { loop: true })

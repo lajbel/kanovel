@@ -1,7 +1,8 @@
 // The start of all KaNovel games
 
 import kaboom from "kaboom";
-import kanovelPlugin from "./kanovel";
+import kanovelPlugin from "../kanovel";
+import kanovelConfig from "./config";
 import loadAssets from "./loader";
 
 import { loadMenu, loadEnd } from "./scenes";
@@ -16,24 +17,14 @@ kaboom({
 	letterbox: true,
 });
 
-kanovel({
-    scene: "kanovel",
-	textbox: { sprite: "textbox" },
-	choice: { sprite: "choice" },
-});
-
-loadAssets();
-loadMenu();
-loadEnd();
+kanovel(kanovelConfig);
 
 // Characters for use in the narration
-
 character("p", "A Replit User (YOU)");
 character("b", "Beany", "beany");
 character("m", "Marky", "marky");
 
 // The "start" chapter for your novel 🚩
-
 chapter("start", () => [
 	prota("Ohh today is a great day!"),
 	prota("Hmm..."),
@@ -75,6 +66,11 @@ chapter("stranger things", () => [
 
 	burpy(),
 ]);
+
+// Load other scenes for later...
+loadAssets();
+loadMenu();
+loadEnd();
 
 // Go to menu scene
 go("menu");
