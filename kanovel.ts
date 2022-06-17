@@ -15,6 +15,12 @@ type Position = [
     number,
 ]
 
+interface Event {
+    id: string,
+    exe: any,
+    skip: boolean,
+}
+
 interface Character {
     name: string;
     sprite: string;
@@ -348,7 +354,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
 
     function addChoices(choices) {
         const basePos = k.vec2(k.width() / 2, k.height() / 4);
-        let lastChoice;
+        let lastChoice: GameObj;
 
         for (let i = 0; i < choices.length; i++) {
             lastChoice = k.add([
@@ -391,8 +397,6 @@ export default function kanovelPlugin(k: KaboomCtx) {
     };
 
     function showCharacter(char: Character, align: "center" | "left" | "right" | Position = "center") {
-        nextEvent();
-
         let charPos: Vec2 = k.vec2(0, 0);
 
         if (align === "center") charPos = k.center();
@@ -413,16 +417,12 @@ export default function kanovelPlugin(k: KaboomCtx) {
     }
 
     function hideCharacter(char: Character) {
-        nextEvent();
-
         k.get(char.name).forEach(c => {
             c.fadeOut();
         });
     }
 
     function changeBackground(spr: string) {
-        nextEvent();
-
         k.every("bg", (bg) => {
             bg.use(k.lifespan(1, { fade: 0.5 }));
         });
@@ -443,14 +443,16 @@ export default function kanovelPlugin(k: KaboomCtx) {
         if (!this.chapters.get(chapter)) throw new Error(`"${chapter} chapter don't exists!"`);
 
         this.curChapter = chapter;
-        this.curEvent = -1;
+        this.curEvent = 0;
+    }
 
-        nextEvent();
+    function loadChapter(title, events) {
+        if (this.chapters.get(title)) throw new Error(`You can't repeat the chapter name! "${title}"`);
+
+        this.chapters.set(title, events());
     }
 
     function playBGMusic(song: string) {
-        nextEvent();
-
         const bgm = k.play(song, { loop: true });
 
         this.curPlaying.set(bgm, bgm);
@@ -471,19 +473,20 @@ export default function kanovelPlugin(k: KaboomCtx) {
         if (k.get("choice").length) return;
         if (this.textbox.text !== this.curDialog) return skipText();
 
-        this.curEvent++;
-
         runEvent(this.chapters.get(this.curChapter)[this.curEvent], this.chapters.get(this.curChapter)[this.curEvent + 1]);
+
+        this.curEvent++;
     }
 
-    async function runEvent(event, next?) {
+    async function runEvent(event: any, next?: any) {
         if (event.length) {
             for (const e of event) runEvent(e, this.chapters.get(this.curChapter)[this.curEvent + 1])
         }
         else {
             await event.exe();
 
-            if (next?.id === "choice") nextEvent();
+            if (event.skip) nextEvent();
+            else if (next?.id === "choice") nextEvent();
         }
     }
 
@@ -514,7 +517,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
         chapters: new Map(),
         curDialog: "",
         curChapter: "start",
-        curEvent: -1,
+        curEvent: 0,
         curPlaying: new Map(),
         history: [],
         skip: false,
@@ -528,18 +531,14 @@ export default function kanovelPlugin(k: KaboomCtx) {
         // Visual Novel Making Functions
 
         character(id: string, name: string, sprite: string) {
-            return this.characters.set(id, {
+            this.characters.set(id, {
                 name: name,
                 sprite: sprite,
             });
         },
 
         chapter(title: string, events: any) {
-            if (this.chapters.get(title)) {
-                throw new Error(`You can't repeat the chapter name! "${title}"`);
-            }
-
-            return this.chapters.set(title, events());
+            loadChapter(title, events);
         },
 
         // History making functions
@@ -571,13 +570,15 @@ export default function kanovelPlugin(k: KaboomCtx) {
             return {
                 id: "show",
                 exe: () => showCharacter(this.characters.get(charId), align),
+                skip: true,
             }
         },
 
         hide(charId: string) {
             return {
                 id: "hide",
-                exe: () => hideCharacter(this.characters.get(charId))
+                exe: () => hideCharacter(this.characters.get(charId)),
+                skip: true,
             }
         },
 
@@ -592,6 +593,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
             return {
                 id: "bg",
                 exe: () => changeBackground(sprite),
+                skip: true,
             }
         },
 
@@ -599,6 +601,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
             return {
                 id: "jump",
                 exe: () => changeChapter(chapter),
+                skip: true,
             }
         },
 
@@ -606,6 +609,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
             return {
                 id: "music",
                 exe: () => playBGMusic(song),
+                skip: true,
             }
         },
 
@@ -613,6 +617,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
             return {
                 id: "stop",
                 exe: () => stopMusic(id),
+                skip: true,
             }
         },
 
@@ -626,11 +631,5 @@ export default function kanovelPlugin(k: KaboomCtx) {
                 },
             }
         },
-
-        // other things
-
-        saveGame() {
-
-        }
     };
 }
