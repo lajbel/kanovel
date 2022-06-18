@@ -12,12 +12,12 @@ But the assets are not loaded by magic, they are loaded by code in the `loader` 
 
 ![image](images/CodeAssets.png)
 
-You can use Kaboom Functions* for load assets
+You can use Kaboom Functions\* for load assets
 
 `loadSprite("spriteID", "spritePath")` <br>
 `loadSound("soundID", "soundPath")`
 
-\* *for the full options of these functions, check the Kaboom documentation.*
+\* _for the full options of these functions, check the Kaboom documentation._
 
 ## Narration
 
@@ -34,18 +34,15 @@ chapter("start", () => [
 Now, the normal thing would be to have a protagonist or a narrator, you're in luck! you don't need to define anything to start using them.
 
 You can speak as the protagonsit with `prota()` function
+
 ```js
-chapter("start", () => [
-    prota("a beautiful night of butterflies"),
-]);
+chapter("start", () => [prota("a beautiful night of butterflies")]);
 ```
 
 Or if you want use a narrator, you can use `narrator()` (although it is relatively the same)
 
 ```js
-chapter("start", () => [
-    narrator("a beautiful night of butterflies"),
-]);
+chapter("start", () => [narrator("a beautiful night of butterflies")]);
 ```
 
 ![Narrator/Protagonist in the game](images/ProtagonistExample.png)
@@ -57,9 +54,7 @@ To use characters, we must first define them, for that there is `character()`, w
 ```js
 character("m", "Marky");
 
-chapter("start", () => [
-    narrator("a beautiful night of butterflies"),
-]);
+chapter("start", () => [narrator("a beautiful night of butterflies")]);
 ```
 
 That's it! Now we can use `char()` to make she talk
@@ -69,10 +64,12 @@ character("m", "Marky");
 
 chapter("start", () => [
     narrator("a beautiful night of butterflies"),
-    char("yes..."),
+    char("m", "yes..."),
 ]);
 ```
 
 ![The name is drawn* in the textbox](images/Yes.png)
 
-*\* to see how to edit the text box see Customization*
+_\* to see how to edit the text box see Customization_
+
+Normally, novels also have several chapters, feel free to create other chapters in your novel.

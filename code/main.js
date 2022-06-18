@@ -22,11 +22,14 @@ loadAssets();
 loadMenu();
 loadEnd();
 
-// Your novel starts here
+// Novel configuration
 kanovel({
     textbox: {
         sprite: "textbox",
         padding: [50, 20], // the padding of the text of the texbox
+    },
+    choice: {
+        sprite: "choice",
     },
 });
 
@@ -75,8 +78,5 @@ chapter("stranger things", () => [
 
     char("m", "now it's your turn to make your own story"),
 
-    end(),
+    end("end", { withBurp: true }),
 ]);
-
-// Go to menu scene
-go("menu");

@@ -11,4 +11,15 @@ export default function loadAssets() {
 
     loadSound("Dubious", "sounds/Dubious.mp3");
     loadSound("Moar BGM", "sounds/Moar BGM.mp3");
+
+    scene("clickhere", () => {
+        add([rect(width(), height()), color(0, 0, 0)]);
+        add([text("Click to Start"), origin("center"), pos(center())]);
+
+        onClick(() => {
+            go("menu");
+        });
+    });
+
+    go("clickhere");
 }

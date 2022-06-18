@@ -18,7 +18,7 @@ type Position = [
 interface Event {
     id: string;
     exe: any;
-    skip: boolean;
+    skip?: boolean;
 }
 
 interface Character {
@@ -30,6 +30,11 @@ interface Character {
 interface CharacterExpression {
     name: string;
     sprite: string;
+}
+
+interface TextOpt {
+    font: string;
+    maxWidth: number;
 }
 
 interface TextboxOpt {
@@ -64,6 +69,11 @@ interface TextboxOpt {
     padding?: [number, number];
 
     /**
+     * Text of the textbox
+     */
+    text: TextOpt;
+
+    /**
      * Use custom components in the textbox game object
      */
     components?: CompList<any>;
@@ -92,17 +102,17 @@ interface NameboxOpt {
 }
 
 interface ChoiceOpt {
-    sprite: string;
+    sprite?: string;
 }
 
 interface KaNovelOpt {
     /**
      * Change the name of the KaNovel's scene
      */
-    scene: string;
-    textbox: TextboxOpt;
-    namebox: NameboxOpt;
-    choice: ChoiceOpt;
+    scene?: string;
+    textbox?: TextboxOpt;
+    namebox?: NameboxOpt;
+    choice?: ChoiceOpt;
 }
 
 declare global {
@@ -312,6 +322,9 @@ export default function kanovelPlugin(k: KaboomCtx) {
         const textboxWidth = conf?.width || k.width();
         const textboxHeight = conf?.height || k.height() / 4;
         const textboxPadding = array2Vec2(conf?.padding!) || k.vec2(20, 20);
+        const maxTextSize =
+            conf?.text?.maxWidth || textboxWidth - textboxWidth / 8;
+        const fontText = conf?.text?.font || "apl386o";
 
         // textbox
         const textboxBG = k.add([
@@ -329,7 +342,11 @@ export default function kanovelPlugin(k: KaboomCtx) {
 
         // text
         this.textbox = k.add([
-            k.text("", { size: conf?.size! | 30, width: textboxWidth }),
+            k.text("", {
+                size: conf?.size! | 30,
+                width: maxTextSize,
+                font: fontText,
+            }),
             k.pos(
                 textboxBG.pos.sub(
                     textboxBG.width / 2 - textboxPadding.x,
@@ -381,15 +398,15 @@ export default function kanovelPlugin(k: KaboomCtx) {
         this.textbox.text = this.curDialog;
     }
 
-    async function addChoices(choices) {
+    async function addChoices(choices: any, opt: ChoiceOpt) {
         return new Promise((resolve, reject) => {
             const basePos = k.vec2(k.width() / 2, k.height() / 4);
             let lastChoice: GameObj | undefined;
 
             for (let i = 0; i < choices.length; i++) {
                 lastChoice = k.add([
-                    config.choice?.sprite
-                        ? k.sprite(config.choice?.sprite)
+                    opt?.sprite
+                        ? k.sprite(opt.sprite)
                         : k.rect(k.width() - 40, k.height() / 8),
                     k.origin("center"),
                     k.pos(
@@ -399,6 +416,9 @@ export default function kanovelPlugin(k: KaboomCtx) {
                     ),
                     k.z(layers.choices),
                     k.area(),
+
+                    fade("in"),
+
                     "choice",
                     {
                         choice: i,
@@ -411,6 +431,9 @@ export default function kanovelPlugin(k: KaboomCtx) {
                     k.origin("center"),
                     k.pos(lastChoice.pos.clone()),
                     k.z(layers.choices),
+
+                    fade("in"),
+
                     "choiceText",
                 ]);
             }
@@ -503,6 +526,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
             throw new Error(`You can't repeat the chapter name! "${title}"`);
 
         this.chapters.set(title, events());
+        this.base_chapters.set(title, events());
     }
 
     function playBGMusic(song: string) {
@@ -547,6 +571,15 @@ export default function kanovelPlugin(k: KaboomCtx) {
         }
     }
 
+    function restartNovelValues() {
+        this.curDialog = "";
+        this.curChapter = "start";
+        this.curEvent = 0;
+        this.curPlaying = new Map();
+
+        this.chapters = this.base_chapters;
+    }
+
     // KANOVEL SCENE
 
     k.onLoad(() => {
@@ -571,6 +604,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
     return {
         characters: new Map<string, Character>(),
         chapters: new Map(),
+        base_chapters: new Map(),
         curDialog: "",
         curChapter: "start",
         curEvent: 0,
@@ -586,10 +620,16 @@ export default function kanovelPlugin(k: KaboomCtx) {
 
         // Visual Novel Making Functions
 
-        character(id: string, name: string, sprite: string) {
+        character(
+            id: string,
+            name: string,
+            sprite: string,
+            expressions?: CharacterExpression[]
+        ) {
             this.characters.set(id, {
                 name: name,
                 sprite: sprite,
+                expressions: expressions || [],
             });
         },
 
@@ -641,7 +681,8 @@ export default function kanovelPlugin(k: KaboomCtx) {
         choice(...choices) {
             return {
                 id: "choice",
-                exe: () => addChoices(choices),
+                exe: () =>
+                    addChoices(choices, config.choice ? config.choice : {}),
             };
         },
 
@@ -683,6 +724,11 @@ export default function kanovelPlugin(k: KaboomCtx) {
                 id: "end",
                 exe: () => {
                     stopMusic();
+
+                    if (opt?.withBurp) k.burp();
+
+                    restartNovelValues();
+
                     k.go(endScene);
                 },
             };
@@ -692,8 +738,12 @@ export default function kanovelPlugin(k: KaboomCtx) {
             return {
                 id: "burpy",
                 exe: () => {
-                    k.burp();
                     stopMusic();
+
+                    k.burp();
+
+                    restartNovelValues();
+
                     k.go(endScene);
                 },
             };
