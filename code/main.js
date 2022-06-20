@@ -4,7 +4,7 @@ import kaboom from "kaboom";
 import kanovelPlugin from "../kanovel";
 import loadAssets from "./loader";
 
-import { loadMenu, loadEnd } from "./scenes";
+import { loadMenu } from "./scenes";
 
 kaboom({
     width: 800,
@@ -17,10 +17,9 @@ kaboom({
     debug: false,
 });
 
-// Load assets and other scenes
+// Load assets and main menu
 loadAssets();
 loadMenu();
-loadEnd();
 
 // Novel configuration
 kanovel({
@@ -78,5 +77,5 @@ chapter("stranger things", () => [
 
     char("m", "now it's your turn to make your own story"),
 
-    end("end", { withBurp: true }),
+    end("menu", "kanoveldefaultend", { withBurp: true }),
 ]);

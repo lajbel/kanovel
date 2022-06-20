@@ -1,9 +1,7 @@
 // The KaNovel's plugin
-
 import { KaboomCtx, Vec2, GameObj, CompList } from "kaboom";
 
 // Typescript Definitions for KaNovel 💋
-
 type Position = [
     /**
      * X coordinate
@@ -76,7 +74,7 @@ interface TextboxOpt {
     /**
      * Use custom components in the textbox game object
      */
-    components?: CompList<any>;
+    // components?: CompList<any>;
 }
 
 interface NameboxOpt {
@@ -98,7 +96,7 @@ interface NameboxOpt {
     /**
      * Use custom components in the namebox game object
      */
-    components?: CompList<any>;
+    // components?: CompList<any>;
 }
 
 interface ChoiceOpt {
@@ -145,7 +143,7 @@ declare global {
         /**
          * Expressions of the Character
          */
-        expressions?: CharacterExpression
+        expressions?: CharacterExpression[]
     ): void;
 
     /**
@@ -210,7 +208,8 @@ declare global {
      */
     function show(
         charId: string,
-        align?: "center" | "left" | "right" | Position
+        align?: "center" | "left" | "right" | Position,
+        expression?: string
     ): void;
 
     /**
@@ -251,12 +250,16 @@ declare global {
     /**
      * End the novel and go to other scene
      */
-    function end(endScene: string, opt?: { withBurp: boolean }): void;
+    function end(
+        toGo?: string,
+        endScene?: string,
+        opt?: { withBurp: boolean }
+    ): void;
 
     /**
      * End the novel and go to other scene with burp
      */
-    function burpy(endScene: string): void;
+    function burpy(toGo?: string, endScene?: string): void;
 }
 
 // Custom Components and functions
@@ -357,6 +360,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
         ]);
 
         // namebox
+        // todo: be customizable
         this.namebox = k.add([
             k.text("", { size: 40 }),
             k.pos(
@@ -461,8 +465,11 @@ export default function kanovelPlugin(k: KaboomCtx) {
 
     function showCharacter(
         char: Character,
-        align: "center" | "left" | "right" | Position = "center"
+        align: "center" | "left" | "right" | Position = "center",
+        expression?: string
     ) {
+        const showIt =
+            char.expressions.find((e) => e.name === expression) || char.sprite;
         let charPos: Vec2 = k.vec2(0, 0);
 
         if (align === "center") charPos = k.center();
@@ -597,6 +604,16 @@ export default function kanovelPlugin(k: KaboomCtx) {
                 }
             });
         });
+
+        k.scene("kanoveldefaultend", (toGo: string) => {
+            k.add([k.rect(k.width(), k.height()), k.color(0, 0, 0)]);
+
+            add([k.text("The End"), k.origin("center"), k.pos(k.center())]);
+
+            debug.log(toGo);
+
+            if (toGo) k.onClick(() => go(toGo));
+        });
     });
 
     // THE REAL KANOVEL PLUGIN 🦋🦋🦋
@@ -662,10 +679,19 @@ export default function kanovelPlugin(k: KaboomCtx) {
 
         // Display
 
-        show(charId: string, align: "center" | "left" | "right" = "center") {
+        show(
+            charId: string,
+            align: "center" | "left" | "right" = "center",
+            expression?: string
+        ) {
             return {
                 id: "show",
-                exe: () => showCharacter(this.characters.get(charId), align),
+                exe: () =>
+                    showCharacter(
+                        this.characters.get(charId),
+                        align,
+                        expression
+                    ),
                 skip: true,
             };
         },
@@ -719,7 +745,11 @@ export default function kanovelPlugin(k: KaboomCtx) {
         },
 
         // end
-        end(endScene: string = "end", opt?: { withBurp: boolean }) {
+        end(
+            toGo: string,
+            endScene: string = "kanoveldefaultend",
+            opt?: { withBurp: boolean }
+        ) {
             return {
                 id: "end",
                 exe: () => {
@@ -729,12 +759,12 @@ export default function kanovelPlugin(k: KaboomCtx) {
 
                     restartNovelValues();
 
-                    k.go(endScene);
+                    k.go(endScene, toGo);
                 },
             };
         },
 
-        burpy(endScene: string = "end") {
+        burpy(toGo: string = "", endScene: string = "kanoveldefaultend") {
             return {
                 id: "burpy",
                 exe: () => {
@@ -744,7 +774,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
 
                     restartNovelValues();
 
-                    k.go(endScene);
+                    k.go(endScene, toGo);
                 },
             };
         },

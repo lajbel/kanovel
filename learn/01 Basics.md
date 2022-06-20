@@ -36,13 +36,17 @@ Now, the normal thing would be to have a protagonist or a narrator, you're in lu
 You can speak as the protagonsit with `prota()` function
 
 ```js
-chapter("start", () => [prota("a beautiful night of butterflies")]);
+chapter("start", () => [
+    prota("a beautiful night of butterflies");
+]);
 ```
 
 Or if you want use a narrator, you can use `narrator()` (although it is relatively the same)
 
 ```js
-chapter("start", () => [narrator("a beautiful night of butterflies")]);
+chapter("start", () => [
+    narrator("a beautiful night of butterflies");
+]);
 ```
 
 ![Narrator/Protagonist in the game](images/ProtagonistExample.png)
@@ -68,8 +72,89 @@ chapter("start", () => [
 ]);
 ```
 
+**TIP:** You can create more chapters and jump to it with `jump()`
+
 ![The name is drawn* in the textbox](images/Yes.png)
 
 _\* to see how to edit the text box see Customization_
 
-Normally, novels also have several chapters, feel free to create other chapters in your novel.
+If you want load a sprite with your character, you need add a extra value to `character()`, and then show it with `show()`
+
+```js
+character("m", "Marky", "marky");
+
+chapter("start", () => [
+    narrator("a beautiful night of butterflies"),
+
+    show("m", "center"), // showing default sprite in center
+
+    char("m", "yes..."),
+]);
+```
+
+TODO: Show image
+
+Now, for load various expression, you need add the last value of `character`
+
+```js
+character("m", "Marky", "marky", [
+    {
+        name: "happy",
+        sprite: "marky happy",
+    },
+]);
+
+chapter("start", () => [
+    narrator("a beautiful night of butterflies"),
+
+    show("m", "center", "happy"), // showing happy sprite in center
+
+    char("m", "yes..."),
+]);
+```
+
+Now, for end your game, you can use `end()`
+
+```js
+character("m", "Marky", "marky", [
+    {
+        name: "happy",
+        sprite: "marky happy",
+    },
+]);
+
+chapter("start", () => [
+    narrator("a beautiful night of butterflies"),
+
+    show("m", "center", "happy"), // showing happy sprite in center
+
+    char("m", "yes..."),
+
+    jump("end"),
+]);
+
+chapter("end", () => [narrator("bye bye"), end()]);
+```
+
+You can load backgrounds too! with `bg()` and your bg
+
+```js
+chapter("start", () => [bg("yourFavBg")]);
+```
+
+And the last, the music, you can use `music()` for reproduce music, and `stop()` for stop it
+
+```js
+chapter("musicaly", () => [
+    // the sound need be loaded with loadSound
+    music("epicsong"),
+
+    prota("ohhi"),
+
+    stop("epicsong"),
+]);
+```
+
+**TIP:** You can stop all the music with a void `stop()`
+
+Good! Now you've got the basics to handle storytelling with Kanovel! emember that this is an early version and we are constantly improving, check the [roadmap](https://github.com/lajbel/kanovel/projects/1)

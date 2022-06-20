@@ -34,15 +34,6 @@ const loadMenu = () =>
         });
     });
 
-const loadEnd = () =>
-    scene("end", () => {
-        add([rect(width(), height()), color(0, 0, 0)]);
-
-        add([text("The End"), origin("center"), pos(center())]);
-
-        onClick(() => go("menu"));
-    });
-
 // Exports
 
-export { loadMenu, loadEnd };
+export { loadMenu };
