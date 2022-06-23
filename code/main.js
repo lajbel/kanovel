@@ -14,6 +14,7 @@ kaboom({
     background: [255, 209, 253],
     stretch: true,
     letterbox: true,
+    touchToMouse: true,
     debug: false,
 });
 

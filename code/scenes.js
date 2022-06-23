@@ -22,6 +22,12 @@ const loadMenu = () =>
             },
         ]);
 
+        onTouchStart(() => {
+            bgm.stop();
+            
+            go("kanovel");
+        });
+
         onUpdate("btn", (btn) => {
             if (btn.isHovering()) btn.scale = vec2(1.2);
             else btn.scale = vec2(1);

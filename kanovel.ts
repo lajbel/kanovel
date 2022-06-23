@@ -326,7 +326,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
         const textboxHeight = conf?.height || k.height() / 4;
         const textboxPadding = array2Vec2(conf?.padding!) || k.vec2(20, 20);
         const maxTextSize =
-            conf?.text?.maxWidth || textboxWidth - textboxWidth / 8;
+            conf?.text?.maxWidth || textboxWidth - textboxWidth / 6;
         const fontText = conf?.text?.font || "apl386o";
 
         // textbox
