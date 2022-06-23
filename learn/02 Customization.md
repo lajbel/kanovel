@@ -47,3 +47,20 @@ chapter("trueend", () => [
 If you are a advanced user with javascript and kaboom, you can make plugins for KaNovel or add more things, simple edit `kanovel.ts`. if you think your change is useful enough for visual novel developers, please make a pull request in the [KaNovel Repos](https://github.com/lajbel/kanovel)
 
 **TIP:** When Kaboom releases 2001, and `parent objects` exist, more extensive support to user modifications will be added
+
+### Custom events
+
+You can create a custom event with a function returning a object
+```js
+function jumpToScene(scene) {
+    return {
+        id: "jumpToScene",
+        exe: () => {
+            // your function execute
+
+            jump(scene)
+        },
+        skip: true, // if auto run the next event
+    }
+}
+```
