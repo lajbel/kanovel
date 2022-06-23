@@ -469,7 +469,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
         expression?: string
     ) {
         const showIt =
-            char.expressions.find((e) => e.name === expression) || char.sprite;
+            char.expressions.find((e) => e.name === expression)?.sprite || char.sprite;
         let charPos: Vec2 = k.vec2(0, 0);
 
         if (align === "center") charPos = k.center();
@@ -479,8 +479,11 @@ export default function kanovelPlugin(k: KaboomCtx) {
             charPos = k.vec2(k.width() / 2 + k.width() / 4, k.height() / 2);
         else if (align) charPos = array2Vec2(align);
 
+        // remove if already that char exists
+        if(get(char.name)[0]) get(char.name)[0].fadeOut();
+
         k.add([
-            k.sprite(char.sprite),
+            k.sprite(showIt),
             k.opacity(0),
             k.origin("center"),
             k.pos(charPos),
