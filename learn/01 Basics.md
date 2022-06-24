@@ -155,6 +155,6 @@ chapter("musicaly", () => [
 ]);
 ```
 
-**TIP:** You can stop all the music with a void `stop()`
+**TIP:** You can stop all the music with an empty `stop()`
 
 Good! Now you've got the basics to handle storytelling with Kanovel! emember that this is an early version and we are constantly improving, check the [roadmap](https://github.com/lajbel/kanovel/projects/1)
