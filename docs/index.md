@@ -1,37 +1,58 @@
-## Welcome to GitHub Pages
+## Home
 
-You can use the [editor on GitHub](https://github.com/lajbel/kanovel/edit/main/docs/index.md) to maintain and preview the content for your website in Markdown files.
+KaNovel is a Replit Template & Kaboom Plugin for make Visual Novels in your browser, open source and easy extendable
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+> Visual novels are a very popular genre of videogames in sectors such as Japan and among the most recurrent readers.
+> Our goal is to make the development 100% opensource, in the browser and easily extensible for someone with not much programming knowledge, such as a writer.
 
-### Markdown
+Originally made for [Template Jam 2022](https://blog.replit.com/template-jam) by Bean Corporation ©️
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+## Quick Example
+```js 
+// We start importing Kaboom and Kanovel plugin
+import kaboom from "kaboom";
+import kanovelPlugin from "./kanovel";
 
-```markdown
-Syntax highlighted code block
+// Starts the Kaboom context
+export default kaboom({
+    width: 800,
+    height: 600,
+    plugins: [ kanovelPlugin ], // IMPORTANT: Load the KaNovel plugin
+});
 
-# Header 1
-## Header 2
-### Header 3
+// Define your characters with id, name and sprite
+character("b", "Beany", "beany");
+character("m", "Marky", "marky");
 
-- Bulleted
-- List
+// The start chapter 
+chapter("start", () => [
+    // Write as the protagonist
+    prota("Two beautiful girls stare at me.");
 
-1. Numbered
-2. List
+    // Show & Talk as a character
+    show("b", "left");
+    char("b", "Oh hi baby");
+ 
+    show("m", "right");
+    char("m", "Hey, that's my line!");
+]);
 
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+// Start your Visual Novel game
+go("vn");
 ```
 
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
+## What's KaNovel?
+* A plugin of Kaboom for make Visual Novels with a understable API for writers ✅
+* A Replit template that merges the Kaboom IDE with the functions of the KaNovel plugin ✅
+* A game engine ❌
+* A replacement for Kaboom ❌
 
-### Jekyll Themes
+## Credits
+This template are using...
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/lajbel/kanovel/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+* [Kaboom](https://kaboomjs.com) as the core of all the process 🕵🏻
+* All the [music](https://lunalucid.itch.io/free-creative-commons-bgm-collection) by [LunaLucid](https://lunalucid.itch.io/)
+* Beany is a modification of [Agustina](https://dejinyucu.itch.io/agustina-visual-novel-sprite) by [Dejinyucu](https://dejinyucu.itch.io)
+* Marky is a modification of [Saki](https://liah0227.itch.io/saki) by [Liah0227](https://liah0227.itch.io)
+* Backgrounds by Noraneko Games
+* APL386 font for the logo text by abrudz
