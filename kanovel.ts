@@ -1,7 +1,6 @@
-// The KaNovel's plugin
 import { KaboomCtx, Vec2, GameObj, CompList } from "kaboom";
 
-// Typescript Definitions for KaNovel 💋
+// Typescript types and definitions  🧈
 type Position = [
     /**
      * X coordinate
@@ -133,7 +132,7 @@ declare global {
          */
         id: string,
         /**
-         * Name of the character for appears on the game
+         * Name of the character
          */
         name: string,
         /**
@@ -309,12 +308,11 @@ function insertInArray(arr: any[], index: number, value: any) {
 }
 
 // download
-function download(name, data, type = "text/plain") {
-	const a = document.createElement("a")
-	a.href = URL.createObjectURL(new Blob([data], { type }))
-	a.download = name
-	a.click()
-	URL.revokeObjectURL(a.href)
+function download(filename: string, url: string) {
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
 }
 
 // KaNovel Plugin
@@ -370,7 +368,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
         ]);
 
         // namebox
-        // todo: be customizable
+        // TODO: be customizable
         this.namebox = k.add([
             k.text("", { size: 40 }),
             k.pos(
@@ -479,7 +477,8 @@ export default function kanovelPlugin(k: KaboomCtx) {
         expression?: string
     ) {
         const showIt =
-            char.expressions.find((e) => e.name === expression)?.sprite || char.sprite;
+            char.expressions.find((e) => e.name === expression)?.sprite ||
+            char.sprite;
         let charPos: Vec2 = k.vec2(0, 0);
 
         if (align === "center") charPos = k.center();
@@ -490,7 +489,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
         else if (align) charPos = array2Vec2(align);
 
         // remove if already that char exists
-        if(get(char.name)[0]) get(char.name)[0].fadeOut();
+        if (get(char.name)[0]) get(char.name)[0].fadeOut();
 
         k.add([
             k.sprite(showIt),
@@ -600,8 +599,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
         this.chapters = this.base_chapters;
     }
 
-    // KANOVEL SCENE
-
+    // KaNovel default scene
     k.onLoad(() => {
         k.scene(config?.scene || "kanovel", (data) => {
             if (config?.textbox) addTextbox(config.textbox);
@@ -610,7 +608,6 @@ export default function kanovelPlugin(k: KaboomCtx) {
             k.onLoad(nextEvent);
 
             // Default input for Visual Novel
-
             k.onUpdate(() => {
                 if (k.isMousePressed() || k.isKeyPressed("space")) {
                     nextEvent();
@@ -634,7 +631,6 @@ export default function kanovelPlugin(k: KaboomCtx) {
     });
 
     // THE REAL KANOVEL PLUGIN 🦋🦋🦋
-
     return {
         characters: new Map<string, Character>(),
         chapters: new Map(),
@@ -647,13 +643,11 @@ export default function kanovelPlugin(k: KaboomCtx) {
         skip: false,
 
         // Kanovel function
-
         kanovel(c: KaNovelOpt) {
             config = c;
         },
 
         // Visual Novel Making Functions
-
         character(
             id: string,
             name: string,
@@ -672,7 +666,6 @@ export default function kanovelPlugin(k: KaboomCtx) {
         },
 
         // History making functions
-
         prota(dialog: string) {
             return {
                 id: "prota",
@@ -695,7 +688,6 @@ export default function kanovelPlugin(k: KaboomCtx) {
         },
 
         // Display
-
         show(
             charId: string,
             align: "center" | "left" | "right" = "center",

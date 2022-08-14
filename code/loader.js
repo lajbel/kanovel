@@ -1,5 +1,5 @@
-//Here you can load all assets for your Visual Novel! you only need
-//use the Kaboom's functions as loadSprite and loadSound
+// Here you can load all assets for your Visual Novel! you only need
+// use the Kaboom's functions as loadSprite and loadSound
 
 export default function loadAssets() {
     loadSprite("textbox", "sprites/textbox.png");
