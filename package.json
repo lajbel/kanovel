@@ -2,8 +2,10 @@
 	"name": "kaboom-env",
 	"dependencies": {
 		"@replit/database": "^2.0.1",
+		"7zip-min": "^1.4.3",
 		"esbuild": "^0.14.13",
 		"express": "^4.17.1",
+		"fs-extra": "^10.1.0",
 		"kaboom": "^2000.2.8",
 		"stacktrace-js": "^2.0.2",
 		"ws": "^8.2.0"
