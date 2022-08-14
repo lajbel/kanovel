@@ -1,6 +1,6 @@
 // kaboom dev server
 
-const fs = require("fs");
+const fs = require("fs-extra");
 const path = require("path");
 const esbuild = require("esbuild");
 const express = require("express");
@@ -11,6 +11,7 @@ const db = new Database();
 const app = express();
 const server = http.createServer(app);
 const port = process.env.PORT || 8000;
+
 let err = null;
 
 // build user game
@@ -53,7 +54,6 @@ function buildGame() {
 			entryPoints: ["helper.ts"],
 			outfile: "dist/helper.js",
 		});
-
 	} catch (e) {
 		const loc = e.errors[0].location;
 		err = {
@@ -78,9 +78,8 @@ function buildGame() {
 		fs.writeFileSync("dist/index.html", msg);
 		return;
 	}
-
+    
 	fs.writeFileSync("dist/index.html", template.replace("{{kaboom}}", code));
-
 }
 
 // server stuff

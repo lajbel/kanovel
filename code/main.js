@@ -10,7 +10,7 @@ kaboom({
     width: 800,
     height: 600,
     plugins: [kanovelPlugin],
-    // This is a default background, for change the game bg, use bg()
+    // This is a default background, to change the game bg, use bg()
     background: [255, 209, 253],
     stretch: true,
     letterbox: true,
@@ -33,7 +33,7 @@ kanovel({
     },
 });
 
-// Characters for use in the narration
+// Characters to use in the narration
 character("p", "A Replit User (YOU)");
 character("b", "Beany", "beany");
 character("m", "Marky", "marky");

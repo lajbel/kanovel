@@ -1,5 +1,5 @@
 // The KaNovel's plugin
-import { KaboomCtx, Vec2, GameObj, CompList } from "kaboom";
+import _kaboom, { KaboomCtx, Vec2, GameObj, CompList } from "kaboom";
 
 // Typescript Definitions for KaNovel 💋
 type Position = [
