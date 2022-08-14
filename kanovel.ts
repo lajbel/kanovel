@@ -329,7 +329,7 @@ export default function kanovelPlugin(k: KaboomCtx) {
         choices: 5,
     };
 
-    function addTextbox(conf?: TextboxOpt) {
+    function addTextbox(conf?: TextboxOpt, nbConf?: NameboxOpt) {
         const textboxWidth = conf?.width || k.width();
         const textboxHeight = conf?.height || k.height() / 4;
         const textboxPadding = array2Vec2(conf?.padding!) || k.vec2(20, 20);
@@ -368,8 +368,8 @@ export default function kanovelPlugin(k: KaboomCtx) {
         ]);
 
         // namebox
-        // TODO: be customizable
         this.namebox = k.add([
+            nbConf?.sprite ? k.sprite(nbConf.sprite) : null,
             k.text("", { size: 40 }),
             k.pos(
                 textboxBG.pos.sub(
