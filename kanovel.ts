@@ -1,4 +1,5 @@
 import { KaboomCtx, Vec2, GameObj, CompList } from "kaboom";
+import { KBTween, easings } from "./tween";
 
 // Typescript types and definitions  🧈
 type Position = [
@@ -262,7 +263,6 @@ declare global {
 }
 
 // Custom Components and functions
-
 function fade(startFade?: "in" | "out") {
     let timer = 0;
 
