@@ -20,9 +20,9 @@ function buildGame() {
 	const template = fs.readFileSync("template.html", "utf-8");
 	let code = "";
 
-	code += `<script src="/dist/helper.js"></script>\n`;
-	code += `<script src="/dist/kanovel.js"></script>\n`;
-	code += `<script src="/dist/game.js"></script>\n`;
+	code += `<script src="./dist/helper.js"></script>\n`;
+	code += `<script src="./dist/kanovel.js"></script>\n`;
+	code += `<script src="./dist/game.js"></script>\n`;
 
 	try {
 
