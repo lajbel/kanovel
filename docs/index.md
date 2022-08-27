@@ -1,3 +1,9 @@
+---
+layout: default
+title: Custom Fonts
+nav_order: 1
+---
+
 ## Home
 
 KaNovel is a Replit Template & Kaboom Plugin for make Visual Novels in your browser, open source and easy extendable
