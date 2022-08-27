@@ -1,267 +1,6 @@
 import { KaboomCtx, Vec2, GameObj, CompList } from "kaboom";
 import { KBTween, easings } from "./tween";
 
-// Typescript types and definitions  🧈
-type Position = [
-    /**
-     * X coordinate
-     */
-    number,
-    /**
-     * Y coordinate
-     */
-    number
-];
-
-interface Event {
-    id: string;
-    exe: any;
-    skip?: boolean;
-}
-
-interface Character {
-    name: string;
-    sprite: string;
-    expressions: CharacterExpression[];
-}
-
-interface CharacterExpression {
-    name: string;
-    sprite: string;
-}
-
-interface TextOpt {
-    font: string;
-    maxWidth: number;
-}
-
-interface TextboxOpt {
-    /**
-     * Kaboom loaded sprite for use in textbox
-     */
-    sprite?: string;
-
-    /**
-     * Position of the Textbox
-     */
-    pos?: Position;
-
-    /**
-     * Width of the textbox
-     */
-    width?: number;
-
-    /**
-     * Height of the textbox
-     */
-    height?: number;
-
-    /**
-     * Size of the text of the textbox
-     */
-    size?: number;
-
-    /**
-     * Padding of the text of the textbox
-     */
-    padding?: [number, number];
-
-    /**
-     * Text of the textbox
-     */
-    text: TextOpt;
-
-    /**
-     * Use custom components in the textbox game object
-     */
-    // components?: CompList<any>;
-}
-
-interface NameboxOpt {
-    /**
-     * Kaboom loaded sprite for use in namebox
-     */
-    sprite?: string;
-
-    /**
-     * Width of the namebox
-     */
-    width?: number;
-
-    /**
-     * Height of the namebox
-     */
-    height?: number;
-
-    /**
-     * Use custom components in the namebox game object
-     */
-    // components?: CompList<any>;
-}
-
-interface ChoiceOpt {
-    sprite?: string;
-}
-
-interface KaNovelOpt {
-    /**
-     * Change the name of the KaNovel's scene
-     */
-    scene?: string;
-    textbox?: TextboxOpt;
-    namebox?: NameboxOpt;
-    choice?: ChoiceOpt;
-}
-
-declare global {
-    /**
-     * Load KaNovel's configuration
-     */
-    function kanovel(config: KaNovelOpt): void;
-
-    /**
-     * Define a Character
-     *
-     * @example
-     * ```js
-     * character("b", "Beany", "beany");
-     * ```
-     */
-    function character(
-        /**
-         * Identifier to use the character
-         */
-        id: string,
-        /**
-         * Name of the character
-         */
-        name: string,
-        /**
-         * Default sprite for use it whit show()
-         */
-        defaultSprite?: string,
-        /**
-         * Expressions of the Character
-         */
-        expressions?: CharacterExpression[]
-    ): void;
-
-    /**
-     * Define a chapter
-     *
-     * @example
-     * ```js
-     * chapter("start", () => [
-     *    prota("Ohh today is a great day!"),
-     *    prota("I want..."),
-     *    prota("I want to live a visual novel life!"),
-     * ]);
-     * ```
-     */
-    function chapter(
-        /**
-         * The title of the chapter
-         */
-        title: string,
-        /**
-         * Events of the chapter
-         */
-        events: any[]
-    ): void;
-
-    /**
-     * Jump to other chapter
-     */
-    function jump(
-        /**
-         * Chapter to jump
-         */
-        chapter: string
-    ): void;
-
-    /**
-     * Write as the protagonist
-     */
-    function prota(dialog: string): void;
-
-    /**
-     * Write as the narrator
-     */
-    function narrator(dialog: string): void;
-
-    /**
-     * Write as a character
-     */
-    function char(
-        /**
-         * The character's id
-         */
-        id: string,
-        /**
-         * Text to say
-         */
-        text: string
-    ): void;
-
-    /**
-     * Show a character
-     */
-    function show(
-        charId: string,
-        align?: "center" | "left" | "right" | Position,
-        expression?: string
-    ): void;
-
-    /**
-     * Hide a character
-     */
-    function hide(charId: string): void;
-
-    /**
-     * Show a background
-     */
-    function bg(
-        /**
-         * Background's sprite
-         */
-        sprite: string
-    ): void;
-
-    /**
-     * Play a music
-     */
-    function music(
-        /**
-         * Audio loaded with Kaboom `loadAudio()`
-         */
-        song: string
-    ): void;
-
-    /**
-     * Create a choice
-     */
-    function choice(
-        /**
-         * Cnoices
-         */
-        ...choices: any[]
-    ): void;
-
-    /**
-     * End the novel and go to other scene
-     */
-    function end(
-        toGo?: string,
-        endScene?: string,
-        opt?: { withBurp: boolean }
-    ): void;
-
-    /**
-     * End the novel and go to other scene with burp
-     */
-    function burpy(toGo?: string, endScene?: string): void;
-}
-
 // Custom Components and functions
 function fade(startFade?: "in" | "out") {
     let timer = 0;
@@ -548,8 +287,8 @@ export default function kanovelPlugin(k: KaboomCtx) {
         this.base_chapters.set(title, events());
     }
 
-    function playBGMusic(song: string) {
-        const bgm = k.play(song, { loop: true });
+    function playBGMusic(song: string, volume: number = 60) {
+        const bgm = k.play(song, { loop: true, volume: volume / 100 });
 
         this.curPlaying.set(bgm, bgm);
     }
@@ -737,10 +476,10 @@ export default function kanovelPlugin(k: KaboomCtx) {
             };
         },
 
-        music(song: string) {
+        music(song: string, volume: number) {
             return {
                 id: "music",
-                exe: () => playBGMusic(song),
+                exe: () => playBGMusic(song, volume),
                 skip: true,
             };
         },
@@ -788,4 +527,271 @@ export default function kanovelPlugin(k: KaboomCtx) {
             };
         },
     };
+}
+
+
+
+// Typescript types and definitions  🧈
+type Position = [
+    /**
+     * X coordinate
+     */
+    number,
+    /**
+     * Y coordinate
+     */
+    number
+];
+
+interface Event {
+    id: string;
+    exe: any;
+    skip?: boolean;
+}
+
+interface Character {
+    name: string;
+    sprite: string;
+    expressions: CharacterExpression[];
+}
+
+interface CharacterExpression {
+    name: string;
+    sprite: string;
+}
+
+interface TextOpt {
+    font: string;
+    maxWidth: number;
+}
+
+interface TextboxOpt {
+    /**
+     * Kaboom loaded sprite for use in textbox
+     */
+    sprite?: string;
+
+    /**
+     * Position of the Textbox
+     */
+    pos?: Position;
+
+    /**
+     * Width of the textbox
+     */
+    width?: number;
+
+    /**
+     * Height of the textbox
+     */
+    height?: number;
+
+    /**
+     * Size of the text of the textbox
+     */
+    size?: number;
+
+    /**
+     * Padding of the text of the textbox
+     */
+    padding?: [number, number];
+
+    /**
+     * Text of the textbox
+     */
+    text: TextOpt;
+
+    /**
+     * Use custom components in the textbox game object
+     */
+    // components?: CompList<any>;
+}
+
+interface NameboxOpt {
+    /**
+     * Kaboom loaded sprite for use in namebox
+     */
+    sprite?: string;
+
+    /**
+     * Width of the namebox
+     */
+    width?: number;
+
+    /**
+     * Height of the namebox
+     */
+    height?: number;
+
+    /**
+     * Use custom components in the namebox game object
+     */
+    // components?: CompList<any>;
+}
+
+interface ChoiceOpt {
+    sprite?: string;
+}
+
+interface KaNovelOpt {
+    /**
+     * Change the name of the KaNovel's scene
+     */
+    scene?: string;
+    textbox?: TextboxOpt;
+    namebox?: NameboxOpt;
+    choice?: ChoiceOpt;
+}
+
+declare global {
+    /**
+     * Load KaNovel's configuration
+     */
+    function kanovel(config: KaNovelOpt): void;
+
+    /**
+     * Define a Character
+     *
+     * @example
+     * ```js
+     * character("b", "Beany", "beany");
+     * ```
+     */
+    function character(
+        /**
+         * Identifier to use the character
+         */
+        id: string,
+        /**
+         * Name of the character
+         */
+        name: string,
+        /**
+         * Default sprite for use it whit show()
+         */
+        defaultSprite?: string,
+        /**
+         * Expressions of the Character
+         */
+        expressions?: CharacterExpression[]
+    ): void;
+
+    /**
+     * Define a chapter
+     *
+     * @example
+     * ```js
+     * chapter("start", () => [
+     *    prota("Ohh today is a great day!"),
+     *    prota("I want..."),
+     *    prota("I want to live a visual novel life!"),
+     * ]);
+     * ```
+     */
+    function chapter(
+        /**
+         * The title of the chapter
+         */
+        title: string,
+        /**
+         * Events of the chapter
+         */
+        events: any[]
+    ): void;
+
+    /**
+     * Jump to other chapter
+     */
+    function jump(
+        /**
+         * Chapter to jump
+         */
+        chapter: string
+    ): void;
+
+    /**
+     * Write as the protagonist
+     */
+    function prota(dialog: string): void;
+
+    /**
+     * Write as the narrator
+     */
+    function narrator(dialog: string): void;
+
+    /**
+     * Write as a character
+     */
+    function char(
+        /**
+         * The character's id
+         */
+        id: string,
+        /**
+         * Text to say
+         */
+        text: string
+    ): void;
+
+    /**
+     * Show a character
+     */
+    function show(
+        charId: string,
+        align?: "center" | "left" | "right" | Position,
+        expression?: string
+    ): void;
+
+    /**
+     * Hide a character
+     */
+    function hide(charId: string): void;
+
+    /**
+     * Show a background
+     */
+    function bg(
+        /**
+         * Background's sprite
+         */
+        sprite: string
+    ): void;
+
+    /**
+     * Play a music
+     */
+    function music(
+        /**
+         * Audio loaded with Kaboom `loadAudio()`
+         */
+        song: string,
+        /**
+         * The audio volume from 0-100, default 50
+         */
+        volume: number
+    ): void;
+
+    /**
+     * Create a choice
+     */
+    function choice(
+        /**
+         * Cnoices
+         */
+        ...choices: any[]
+    ): void;
+
+    /**
+     * End the novel and go to other scene
+     */
+    function end(
+        toGo?: string,
+        endScene?: string,
+        opt?: { withBurp: boolean }
+    ): void;
+
+    /**
+     * End the novel and go to other scene with burp
+     */
+    function burpy(toGo?: string, endScene?: string): void;
 }

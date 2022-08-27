@@ -11,7 +11,7 @@ kaboom({
     height: 600,
     // load the kanovel plugin 🦋
     plugins: [kanovelPlugin],
-    background: [255, 209, 253],
+    background: [255, 191, 191],
     stretch: true,
     letterbox: true,
     touchToMouse: true,
