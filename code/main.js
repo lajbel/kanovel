@@ -1,16 +1,16 @@
-// The start of all KaNovel games
-
+// we start importing these modules
 import kaboom from "kaboom";
 import kanovelPlugin from "../kanovel";
 import loadAssets from "./loader";
 
 import { loadMenu } from "./scenes";
 
+// load the kaboom context, the base of all
 kaboom({
     width: 800,
     height: 600,
+    // load the kanovel plugin 🦋
     plugins: [kanovelPlugin],
-    // This is a default background, to change the game bg, use bg()
     background: [255, 209, 253],
     stretch: true,
     letterbox: true,
@@ -18,32 +18,33 @@ kaboom({
     debug: false,
 });
 
-// Load assets and main menu
+// load assets and the main menu
 loadAssets();
 loadMenu();
 
-// Novel configuration
+// kanovel configuration
 kanovel({
     textbox: {
         sprite: "textbox",
-        padding: [50, 20], // the padding of the text of the texbox
+        padding: [50, 20],
     },
     choice: {
         sprite: "choice",
     },
 });
 
-// Characters to use in the narration
-character("p", "A Replit User (YOU)");
-character("b", "Beany", "beany");
-character("m", "Marky", "marky");
+// characters to use in the narration
+character("p", "you");
+character("b", "beany", "beany");
+character("m", "marky", "marky");
 
-// The "start" chapter for your novel 🚩
+// the start of your novel 🚩
 chapter("start", () => [
     prota("Ohh today is a great day!"),
     prota("Hmm..."),
     prota("I would like to do something fun."),
 
+    // jump to other chapter
     jump("in the train"),
 ]);
 
