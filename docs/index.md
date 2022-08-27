@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Custom Fonts
+title: Home
 nav_order: 1
 ---
 
