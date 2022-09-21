@@ -1,6 +1,6 @@
 {
     "name": "kanovel",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Make visual novels in the browser",
     "main": "./dist/kanovel.cjs",
     "module": "./dist/kanovel.mjs",
@@ -19,6 +19,12 @@
     "scripts": {
         "build": "node scripts/build.js"
     },
+    "files": [
+        "dist/",
+        "src/",
+        "CHANGELOG.md",
+        "README.md"
+    ],
     "keywords": [
         "game-engine",
         "kaboom",
