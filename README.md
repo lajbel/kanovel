@@ -3,7 +3,7 @@
 	<p align="center">
 		KaNovel is a  <a href="https://kaboomjs.com">Kaboom</a> Plugin for make Visual Novels in your browser, open source and easy extendable
 	</p>
-</p
+</p>
 
 ## Quick Example
 
