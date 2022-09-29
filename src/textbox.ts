@@ -9,6 +9,8 @@ export function addTextbox(opt: TextboxOpt = {}): GameObj<TextboxComp> {
         pos: array2Vec2(opt.pos ?? [0, height()]),
         width: opt.width ?? width(),
         height: opt.height ?? 200,
+        sprite: opt.sprite ?? null,
+        border: opt.border ?? [10, 0, 0, 10],
     };
 
     const textbox = add([
@@ -23,7 +25,7 @@ export function addTextbox(opt: TextboxOpt = {}): GameObj<TextboxComp> {
         follow(textbox),
         // @ts-ignore
         origin("botleft"),
-        rect(conf.width, 200),
+        conf.sprite ? sprite(conf.sprite) : rect(conf.width, conf.height),
     ]);
 
     textbox.textBox = add([

@@ -26,7 +26,11 @@ export interface Action {
 
 /** A character are the actors of the novel */
 export interface Character {
+    /** ID of the character */
+    id: string;
+    /** The visual name of the character */
     name: string;
+    /** A default sprite for the character */
     sprite: string;
     expressions: CharacterExpression[];
 }
@@ -68,9 +72,9 @@ export interface TextboxOpt {
     size?: number;
 
     /**
-     * Padding of the text of the textbox
+     * Border of the text of the textbox
      */
-    padding?: [number, number];
+    border?: [number, number, number, number];
 
     /**
      * Text of the textbox
@@ -193,7 +197,7 @@ export interface KaNovelPlugin {
     /**
      * Write as a character
      */
-    char(
+    say(
         /**
          * The character's id
          */
