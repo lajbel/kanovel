@@ -1,16 +1,10 @@
 import { GameObj } from "kaboom";
+import { textboxComp, TextboxComp } from "./components";
 import { TextboxOpt } from "./types";
 import { array2Vec2 } from "./util";
 
-interface TextboxGameObj extends GameObj {
-    /** Write a text */
-    write(text: string): void;
-    /** Set the name of namebox */
-    setName(text: string): void;
-}
-
 // TODO: update to childrens when new kaboom
-export function addTextbox(opt: TextboxOpt = {}): TextboxGameObj {
+export function addTextbox(opt: TextboxOpt = {}): GameObj<TextboxComp> {
     const conf = {
         pos: array2Vec2(opt.pos ?? [0, height()]),
         width: opt.width ?? width(),
@@ -21,21 +15,7 @@ export function addTextbox(opt: TextboxOpt = {}): TextboxGameObj {
         pos(conf.pos),
         // @ts-ignore
         origin("botleft"),
-        {
-            async write(txt: string) {
-                this.textBox.text = "";
-
-                for (let i = 0; i < txt.length; i++) {
-                    await wait(0.05);
-
-                    this.textBox.text += txt[i];
-                }
-            },
-
-            setName(txt: string) {
-                this.nameBox.text = txt;
-            },
-        },
+        textboxComp(),
     ]);
 
     textbox.bg = add([
@@ -58,5 +38,5 @@ export function addTextbox(opt: TextboxOpt = {}): TextboxGameObj {
         text("", { size: 40 }),
     ]);
 
-    return textbox as TextboxGameObj;
+    return textbox as GameObj<TextboxComp>;
 }
