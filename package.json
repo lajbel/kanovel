@@ -1,6 +1,6 @@
 {
     "name": "kanovel",
-    "version": "0.1.1",
+    "version": "1.0.0",
     "description": "Make visual novels in the browser",
     "main": "./dist/kanovel.cjs",
     "module": "./dist/kanovel.mjs",
@@ -17,7 +17,8 @@
         "require": "./dist/kanovel.cjs"
     },
     "scripts": {
-        "build": "node scripts/build.js"
+        "build": "node scripts/build.js",
+        "game": "cd test && node build.js"
     },
     "files": [
         "dist/",

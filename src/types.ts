@@ -1,7 +1,7 @@
-import { KaboomCtx, KaboomPlugin } from "kaboom";
+import { KaboomCtx, KaboomPlugin, KaboomOpt } from "kaboom";
 
 // KaNovel plugin function
-declare function kanovelPlugin(): KaNovelPlugin;
+declare function kanovel(): KaboomCtx & KaNovelPlugin;
 
 // Typescript types and definitions  🧈
 export type Position = [
@@ -15,12 +15,16 @@ export type Position = [
     number
 ];
 
+export interface KaNovelOpt extends KaboomOpt {}
+
+/** An events it's all that happens in the game */
 export interface Event {
     id: string;
     exe: any;
     skip?: boolean;
 }
 
+/** A character are the actors of the novel */
 export interface Character {
     name: string;
     sprite: string;
@@ -105,7 +109,7 @@ export interface ChoiceOpt {
     sprite?: string;
 }
 
-export interface KaNovelOpt {
+export interface KaNovelPluginOpt {
     /**
      * Change the name of the KaNovel's scene
      */
@@ -116,20 +120,6 @@ export interface KaNovelOpt {
 }
 
 export interface KaNovelPlugin {
-    characters: Map<string, Character>;
-    chapters: Map<any, any>;
-    base_chapters: Map<any, any>;
-    curDialog: string;
-    curChapter: string;
-    curEvent: number;
-    curPlaying: Map<any, any>;
-    log: string[];
-    skip: boolean;
-    /**
-     * Load KaNovel's configuration
-     */
-    kanovel(config: KaNovelOpt): void;
-
     /**
      * Define a Character
      *
@@ -283,4 +273,4 @@ export interface KaNovelPlugin {
     burpy(toGo?: string, endScene?: string): void;
 }
 
-export default kanovelPlugin;
+export default kanovel;

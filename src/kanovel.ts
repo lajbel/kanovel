@@ -1,6 +1,6 @@
-import { KaboomCtx, Vec2, GameObj } from "kaboom";
+import kaboom, { KaboomCtx, Vec2, GameObj } from "kaboom";
 import {
-    KaNovelOpt,
+    KaNovelPluginOpt,
     KaNovelPlugin,
     Character,
     TextboxOpt,
@@ -8,13 +8,33 @@ import {
     ChoiceOpt,
     Position,
     CharacterExpression,
+    KaNovelOpt,
 } from "./types";
 import { fade } from "./components";
 import { array2Vec2, insertInArray, download } from "./util";
 
+function kanovel(conf: KaNovelOpt) {
+    // TODO: maybe you can upwrite the kanovelPlugin
+    kaboom({
+        ...conf,
+        plugins: [kanovelPlugin],
+    });
+}
+
 // KaNovel Plugin function
-function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
-    let config: KaNovelOpt;
+export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
+    let config: KaNovelPluginOpt;
+    const characters = new Map<string, Character>();
+    let chapters = new Map();
+    const base_chapters = new Map();
+    const curPlaying = new Map();
+
+    let curDialog = "";
+    let curChapter = "start";
+    let curEvent = 0;
+
+    let log = [];
+    let skip = false;
 
     const layers = {
         bg: 0,
@@ -28,7 +48,9 @@ function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
     function addTextbox(conf?: TextboxOpt, nbConf?: NameboxOpt) {
         const textboxWidth = conf?.width || k.width();
         const textboxHeight = conf?.height || k.height() / 4;
-        const textboxPadding = array2Vec2(conf?.padding!) || k.vec2(20, 20);
+        const textboxPadding = conf?.padding!
+            ? array2Vec2(conf?.padding)
+            : k.vec2(20, 20);
         const maxTextSize =
             conf?.text?.maxWidth || textboxWidth - textboxWidth / 6;
         const fontText = conf?.text?.font || "apl386o";
@@ -78,32 +100,32 @@ function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
     }
 
     async function write(dialog: string, character?: Character) {
-        this.skip = false;
+        skip = false;
         this.textbox.text = "";
 
         if (character) {
             this.namebox.text = character.name;
-            this.curDialog = '"' + dialog + '"';
+            curDialog = '"' + dialog + '"';
         } else {
             this.namebox.text = "";
-            this.curDialog = dialog;
+            curDialog = dialog;
         }
 
-        for (let i = 0; i < this.curDialog.length; i++) {
-            if (this.skip) break;
+        for (let i = 0; i < curDialog.length; i++) {
+            if (skip) break;
 
             await k.wait(0.05, () => {
-                if (this.skip) return;
+                if (skip) return;
 
-                this.textbox.text += this.curDialog[i];
+                this.textbox.text += curDialog[i];
             });
         }
     }
 
     function skipText() {
-        this.skip = true;
+        skip = true;
 
-        this.textbox.text = this.curDialog;
+        this.textbox.text = curDialog;
     }
 
     async function addChoices(choices: any, opt: ChoiceOpt) {
@@ -160,11 +182,7 @@ function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
     }
 
     function checkChoice(choice) {
-        insertInArray(
-            this.chapters.get(this.curChapter),
-            this.curEvent,
-            choice[1]
-        );
+        insertInArray(chapters.get(curChapter), curEvent, choice[1]);
     }
 
     function showCharacter(
@@ -197,21 +215,15 @@ function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
 
             fade("in"),
         ]);
-
-        debug.log(`character ${char.name} showed`);
     }
 
     function hideCharacter(char: Character) {
         k.get(char.name).forEach((c) => {
             c.fadeOut();
         });
-
-        debug.log(`character ${char.name} hidden`);
     }
 
     function changeBackground(spr: string) {
-        debug.log("background changed to" + spr);
-
         k.every("bg", (bg) => {
             bg.use(k.lifespan(1, { fade: 0.5 }));
         });
@@ -229,32 +241,32 @@ function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
     }
 
     function changeChapter(chapter: string) {
-        if (!this.chapters.get(chapter))
+        if (!chapters.get(chapter))
             throw new Error(`"${chapter} chapter don't exists!"`);
 
-        this.curChapter = chapter;
-        this.curEvent = -1;
+        curChapter = chapter;
+        curEvent = -1;
     }
 
     function loadChapter(title: string, events: any) {
-        if (this.chapters.get(title))
+        if (chapters.get(title))
             throw new Error(`You can't repeat the chapter name! "${title}"`);
 
-        this.chapters.set(title, events());
-        this.base_chapters.set(title, events());
+        chapters.set(title, events());
+        base_chapters.set(title, events());
     }
 
     function playBGMusic(song: string, volume: number = 60) {
         const bgm = k.play(song, { loop: true, volume: volume / 100 });
 
-        this.curPlaying.set(bgm, bgm);
+        curPlaying.set(bgm, bgm);
     }
 
     function stopMusic(id?: string) {
         if (id) {
-            this.curPlaying.get(id)?.stop();
+            curPlaying.get(id)?.stop();
         } else {
-            this.curPlaying.forEach((id, audio) => {
+            curPlaying.forEach((id, audio) => {
                 audio.stop();
             });
         }
@@ -262,42 +274,39 @@ function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
 
     function nextEvent() {
         if (k.get("choice").length > 0) return;
-        if (this.textbox.text !== this.curDialog) return skipText();
+        if (this.textbox.text !== curDialog) return skipText();
 
         runEvent(
-            this.chapters.get(this.curChapter)[this.curEvent],
-            this.chapters.get(this.curChapter)[this.curEvent + 1]
+            chapters.get(curChapter)[curEvent],
+            chapters.get(curChapter)[curEvent + 1]
         );
     }
 
     async function runEvent(event: any, next?: any) {
         if (event.length) {
             for (const e of event)
-                runEvent(
-                    e,
-                    this.chapters.get(this.curChapter)[this.curEvent + 1]
-                );
+                runEvent(e, chapters.get(curChapter)[curEvent + 1]);
         } else {
             await event.exe();
 
-            this.curEvent++;
+            curEvent++;
 
             if (event.skip) nextEvent();
         }
     }
 
     function restartNovelValues() {
-        this.curDialog = "";
-        this.curChapter = "start";
-        this.curEvent = 0;
+        curDialog = "";
+        curChapter = "start";
+        curEvent = 0;
         this.curPlaying = new Map();
 
-        this.chapters = this.base_chapters;
+        chapters = this.base_chapters;
     }
 
     // KaNovel default scene
     k.onLoad(() => {
-        k.scene(config?.scene || "kanovel", (data) => {
+        k.scene(config?.scene || "vn", (data) => {
             if (config?.textbox) addTextbox(config.textbox);
             else addTextbox();
 
@@ -320,29 +329,11 @@ function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
 
             add([k.text("The End"), k.origin("center"), k.pos(k.center())]);
 
-            debug.log(toGo);
-
             if (toGo) k.onClick(() => go(toGo));
         });
     });
 
-    // THE REAL KANOVEL PLUGIN 🦋🦋🦋
     return {
-        characters: new Map<string, Character>(),
-        chapters: new Map(),
-        base_chapters: new Map(),
-        curDialog: "",
-        curChapter: "start",
-        curEvent: 0,
-        curPlaying: new Map(),
-        log: [],
-        skip: false,
-
-        // Kanovel function
-        kanovel(c: KaNovelOpt) {
-            config = c;
-        },
-
         // Visual Novel Making Functions
         character(
             id: string,
@@ -350,7 +341,7 @@ function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             sprite: string,
             expressions?: CharacterExpression[]
         ) {
-            this.characters.set(id, {
+            characters.set(id, {
                 name: name,
                 sprite: sprite,
                 expressions: expressions || [],
@@ -379,7 +370,7 @@ function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         char(id: string, dialog: string) {
             return {
                 id: "dialog",
-                exe: () => write(dialog, this.characters.get(id)),
+                exe: () => write(dialog, characters.get(id)),
             };
         },
 
@@ -392,11 +383,7 @@ function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             return {
                 id: "show",
                 exe: () =>
-                    showCharacter(
-                        this.characters.get(charId),
-                        align,
-                        expression
-                    ),
+                    showCharacter(characters.get(charId)!, align, expression),
                 skip: true,
             };
         },
@@ -404,7 +391,7 @@ function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         hide(charId: string) {
             return {
                 id: "hide",
-                exe: () => hideCharacter(this.characters.get(charId)),
+                exe: () => hideCharacter(characters.get(charId)!),
                 skip: true,
             };
         },
@@ -486,4 +473,4 @@ function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
     };
 }
 
-export default kanovelPlugin;
+export default kanovel;
