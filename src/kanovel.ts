@@ -24,6 +24,7 @@ function kanovel(conf: KaNovelOpt) {
 // KaNovel Plugin function
 export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
     let config: KaNovelPluginOpt;
+
     const characters = new Map<string, Character>();
     let chapters = new Map();
     const base_chapters = new Map();
@@ -33,7 +34,6 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
     let curChapter = "start";
     let curEvent = 0;
 
-    let log = [];
     let skip = false;
 
     const layers = {

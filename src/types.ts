@@ -17,8 +17,8 @@ export type Position = [
 
 export interface KaNovelOpt extends KaboomOpt {}
 
-/** An events it's all that happens in the game */
-export interface Event {
+/** An action it's all that happens in the novel */
+export interface Action {
     id: string;
     exe: any;
     skip?: boolean;
@@ -165,9 +165,9 @@ export interface KaNovelPlugin {
          */
         title: string,
         /**
-         * Events of the chapter
+         * Actions of the chapter
          */
-        events: any[]
+        actions: any[]
     ): void;
 
     /**
