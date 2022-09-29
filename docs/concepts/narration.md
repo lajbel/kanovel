@@ -2,7 +2,7 @@
 layout: default
 title: Narration
 parent: Concepts
-nav_order: 1
+nav_order: 2
 ---
 
 # Code your game narration
@@ -12,15 +12,16 @@ Don't worry! Yes, if you are here, you want to learn with the most easy words, h
 It's easy! the first thing that you need to know it's all KaNovel games starts with `kanovel()`
 
 ```javascript
-kanovel()
+kanovel();
 ```
+
 ## Character
 
 Now, one of the parts of a kanovel game it's `characters`, how we can create a character? No worries, it's easy too!
 We will use `character()`, and inside of the `()` we will add a ID, and a Displayable name, separated by comma (this is the way to separate the `arguments`)
 
 ```javascript
-kanovel()
+kanovel();
 
-character("d", "Danie")
+character("d", "Danie");
 ```
