@@ -14,23 +14,23 @@ KaNovel is a begginer friendly visual novel engine! 🦋
 
 ```javascript
 // Starts the game
-kanovel();
+kanovel()
 
 // Define the characters with id, name and sprite
-character("b", "Beany", "beany");
-character("m", "Marky", "marky");
+character("b", "Beany", "beany")
+character("m", "Marky", "marky")
 
 // The start chapter
 chapter("start", () => [
     // Write as the protagonist
-    prota("Two beautiful girls stare at me.");
+    prota("Two beautiful girls stare at me.")
 
     // Show & Talk as a character
-    show("b", "left");
-    char("b", "Oh hi baby");
+    show("b", "left")
+    say("b", "Oh hi baby")
 
-    show("m", "right");
-    char("m", "Hey, that's my line!");
+    show("m", "right")
+    say("m", "Hey, that's my line!")
 ]);
 
 // Start the game

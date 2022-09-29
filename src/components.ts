@@ -4,7 +4,7 @@ import { Comp } from "kaboom";
 
 export interface TextboxComp extends Comp {
     /** Write a text */
-    write(text: string): void;
+    write(text: string): Promise<void>;
     /** Set the name of namebox */
     setName(text: string): void;
 }
