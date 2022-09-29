@@ -1,10 +1,7 @@
-<p align="center">
-	<img src="https://imgur.com/g5mjs4C.png" alt="KaNovel Logo" align="center"/>
-	<p align="center">
-		KaNovel is a  <a href="https://kaboomjs.com">Kaboom</a> Plugin for make Visual Novels in your browser, open source and easy extendable
-	</p>
-    <a href="https://twitter.com/PrettierCode"><img alt="code style: prettier" src="https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square"></a>
-</p>
+![](https://imgur.com/g5mjs4C.png)
+
+KaNovel is a begginer friendly visual novel engine! 🦋
+Using normal concepts you can make a novel :D
 
 ## Quick Example
 
@@ -43,8 +40,14 @@ go("vn");
 
 ## Installation
 
+## For Devs
+
 ### npm
 
-```
+```js
 npm i kanovel
 ```
+
+### cdn
+
+you can load the library from cdns like `jsdelivr` or `unpkg`
