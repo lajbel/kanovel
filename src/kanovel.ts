@@ -13,6 +13,8 @@ import {
 import { fade } from "./components";
 import { array2Vec2, insertInArray, download } from "./util";
 
+export { addTextbox } from "./textbox";
+
 function kanovel(conf: KaNovelOpt) {
     // TODO: maybe you can upwrite the kanovelPlugin
     kaboom({

@@ -1,15 +1,41 @@
+import { GameObj } from "kaboom";
 import { TextboxOpt } from "./types";
+import { array2Vec2 } from "./util";
+
+interface TextboxGameObj extends GameObj {
+    /** Write a text */
+    write(text: string): void;
+    /** Set the name of namebox */
+    setName(text: string): void;
+}
 
 // TODO: update to childrens when new kaboom
-export function addTextbox(
-    opt: TextboxOpt = {
-        width: width(),
-    }
-) {
+export function addTextbox(opt: TextboxOpt = {}): TextboxGameObj {
+    const conf = {
+        pos: array2Vec2(opt.pos ?? [0, height()]),
+        width: opt.width ?? width(),
+        height: opt.height ?? 200,
+    };
+
     const textbox = add([
-        pos(0, height()),
+        pos(conf.pos),
         // @ts-ignore
         origin("botleft"),
+        {
+            async write(txt: string) {
+                this.textBox.text = "";
+
+                for (let i = 0; i < txt.length; i++) {
+                    await wait(0.05);
+
+                    this.textBox.text += txt[i];
+                }
+            },
+
+            setName(txt: string) {
+                this.nameBox.text = txt;
+            },
+        },
     ]);
 
     textbox.bg = add([
@@ -17,68 +43,20 @@ export function addTextbox(
         follow(textbox),
         // @ts-ignore
         origin("botleft"),
-        rect(opt.width!, 200),
+        rect(conf.width, 200),
     ]);
 
-	textbox.text = add([
-		pos(),
-		follow(textbox, vec2(0, 200 )),
-		text(""),
-	]);
+    textbox.textBox = add([
+        pos(),
+        follow(textbox, vec2(0, -conf.height)),
+        text(""),
+    ]);
+
+    textbox.nameBox = add([
+        pos(),
+        follow(textbox, vec2(0, -conf.height - 30)),
+        text("", { size: 40 }),
+    ]);
+
+    return textbox as TextboxGameObj;
 }
-
-/** 
-function addTextbox(conf?: TextboxOpt, nbConf?: NameboxOpt) {
-        const textboxWidth = conf?.width || k.width();
-        const textboxHeight = conf?.height || k.height() / 4;
-        const textboxPadding = conf?.padding!
-            ? array2Vec2(conf?.padding)
-            : k.vec2(20, 20);
-        const maxTextSize =
-            conf?.text?.maxWidth || textboxWidth - textboxWidth / 6;
-        const fontText = conf?.text?.font || "apl386o";
-
-        // textbox
-        const textboxBG = k.add([
-            conf?.sprite
-                ? k.sprite(conf.sprite)
-                : k.rect(textboxWidth, textboxHeight),
-            k.origin("bot"),
-            k.z(layers.textbox),
-            k.pos(
-                conf?.pos
-                    ? array2Vec2(conf.pos)
-                    : k.vec2(k.width() / 2, k.height() - 20)
-            ),
-        ]);
-
-        // text
-        this.textbox = k.add([
-            k.text("", {
-                size: conf?.size! | 30,
-                width: maxTextSize,
-                font: fontText,
-            }),
-            k.pos(
-                textboxBG.pos.sub(
-                    textboxBG.width / 2 - textboxPadding.x,
-                    textboxBG.height - textboxPadding.y
-                )
-            ),
-            k.z(layers.text),
-        ]);
-
-        // namebox
-        this.namebox = k.add([
-            nbConf?.sprite ? k.sprite(nbConf.sprite) : null,
-            k.text("", { size: 40 }),
-            k.pos(
-                textboxBG.pos.sub(
-                    textboxBG.width / 2 - 30,
-                    textboxBG.height + 30
-                )
-            ),
-            k.z(layers.name),
-        ]);
-    }
-*/
