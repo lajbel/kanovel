@@ -12,7 +12,7 @@ KaNovel is a begginer friendly visual novel engine! 🦋
 
 ## Quick Example
 
-```js
+```javascript
 // Starts the game
 kanovel();
 
