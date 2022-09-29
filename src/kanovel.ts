@@ -10,7 +10,7 @@ import {
     CharacterExpression,
     KaNovelOpt,
 } from "./types";
-import { fade } from "./components";
+import { fade, TextboxComp } from "./components";
 import { array2Vec2, insertInArray, download } from "./util";
 import { addTextbox } from "./textbox";
 
@@ -30,7 +30,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
     let curChapter = "start";
     let curAction = -1;
 
-    let textbox;
+    let textbox: GameObj<TextboxComp>;
 
     function nextAction() {
         curAction++;
