@@ -75,7 +75,7 @@ export interface TextboxOpt {
     /**
      * Text of the textbox
      */
-    text: TextOpt;
+    text?: TextOpt;
 
     /**
      * Use custom components in the textbox game object
