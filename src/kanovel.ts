@@ -26,20 +26,27 @@ function kanovel(conf: KaNovelOpt) {
 export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
     const characters = new Map<string, Character>();
     const chapters = new Map<string, any>();
-    const actions = new Map<string, any>();
 
+    let curChapter = "start";
     let curAction = -1;
 
     let textbox;
 
-    function nextAction() {}
+    function nextAction() {
+        curAction++;
 
-    scene("kanovel", () => {
+        const action = chapters.get(curChapter)[curAction];
+
+        action.run();
+    }
+
+    k.scene("kanovel", () => {
         textbox = addTextbox();
 
         // Default input for Visual Novel
         k.onUpdate(() => {
             if (k.isMousePressed("left") || k.isKeyPressed("space")) {
+                nextAction();
             }
         });
 
@@ -48,8 +55,21 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         });
     });
 
+    k.onLoad(() => {
+        go("kanovel");
+    });
+
     // @ts-ignore
     return {
+        chapter(title: string, actions: any) {
+            if (chapters.get(title))
+                throw new Error(
+                    `You can't repeat the chapter name! "${title}"`
+                );
+
+            chapters.set(title, actions());
+        },
+
         character(
             id: string,
             name: string,
@@ -67,7 +87,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         say(id: string, text: string) {
             const char = characters.get(id);
 
-            if (!char) throw Error("ERROR: Character not found");
+            if (!char) throw Error("Character not found");
 
             return {
                 id: "write",
