@@ -19,6 +19,7 @@ export { addTextbox } from "./textbox";
 function kanovel(conf: KaNovelOpt) {
     kaboom({
         ...conf,
+        background: conf?.background ?? [235, 152, 207],
         plugins: [kanovelPlugin],
     });
 }
@@ -29,29 +30,46 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
 
     let curChapter = "start";
     let curAction = -1;
+    let isAction = false;
 
     let textbox: GameObj<TextboxComp>;
 
-    function nextAction() {
+    async function nextAction() {
+        isAction = true;
         curAction++;
 
         const action = chapters.get(curChapter)[curAction];
 
-        action.run();
+        await action.run();
+
+        isAction = false;
+    }
+
+    function skipAction() {
+        const action = chapters.get(curChapter)[curAction];
+
+        if (action.skip) action.skip();
     }
 
     k.scene("kanovel", () => {
         textbox = addTextbox();
 
+        nextAction();
+
         // Default input for Visual Novel
         k.onUpdate(() => {
             if (k.isMousePressed("left") || k.isKeyPressed("space")) {
-                nextAction();
+                if (!isAction) nextAction();
+                else skipAction();
             }
-        });
 
-        k.onKeyPress("s", () => {
-            download("screenshot.png", k.screenshot());
+            if (k.isKeyPressed("s")) {
+                const temp = onDraw(() => {
+                    download("screenshot.png", k.screenshot());
+
+                    temp();
+                });
+            }
         });
     });
 
@@ -91,9 +109,12 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
 
             return {
                 id: "write",
-                run() {
+                async run() {
                     textbox.setName(char.name);
-                    textbox.write(text);
+                    await textbox.write(text);
+                },
+                skip() {
+                    textbox.skipText();
                 },
             };
         },
