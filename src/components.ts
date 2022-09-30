@@ -3,26 +3,57 @@
 import { Comp } from "kaboom";
 
 export interface TextboxComp extends Comp {
+    skipped: boolean;
+    curChar: number;
     /** Write a text */
     write(text: string): Promise<void>;
     /** Set the name of namebox */
     setName(text: string): void;
+    /** Skip current writing text */
+    skipText(): void;
 }
 
 export function textboxComp(): TextboxComp {
     return {
         id: "textbox",
-        async write(txt: string) {
-            this.textBox.text = "";
+        require: [],
 
-            for (let i = 0; i < txt.length; i++) {
-                await wait(0.05);
+        curChar: 0,
+        skipped: false,
 
-                this.textBox.text += txt[i];
-            }
+        write(txt: string) {
+            return new Promise((resolve) => {
+                this.textBox.text = "";
+
+                const stopWriting = loop(0.05, () => {
+                    if (this.skipped) {
+                        this.skipped = false;
+
+                        this.textBox.text = txt;
+
+                        this.curChar = 0;
+
+                        resolve();
+
+                        return stopWriting();
+                    }
+
+                    this.textBox.text += txt[this.curChar];
+                    this.curChar++;
+
+                    if (this.curChar == txt.length) {
+                        this.curChar = 0;
+                        resolve();
+                        return stopWriting();
+                    }
+                });
+            });
         },
         setName(txt: string) {
             this.nameBox.text = txt;
+        },
+        skipText() {
+            if (!this.skipped) this.skipped = true;
         },
     };
 }

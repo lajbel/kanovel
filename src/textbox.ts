@@ -30,14 +30,16 @@ export function addTextbox(opt: TextboxOpt = {}): GameObj<TextboxComp> {
 
     textbox.textBox = add([
         pos(),
-        follow(textbox, vec2(0, -conf.height)),
-        text(""),
+        follow(textbox, vec2(0 + conf.border[3], -conf.height)),
+        text("", { size: 42, width: width() - conf.border[1] }),
     ]);
 
     textbox.nameBox = add([
         pos(),
-        follow(textbox, vec2(0, -conf.height - 30)),
-        text("", { size: 40 }),
+        follow(textbox, vec2(0, -conf.height - 2)),
+        // @ts-ignore
+        origin("botleft"),
+        text("", { size: 82 }),
     ]);
 
     return textbox as GameObj<TextboxComp>;
