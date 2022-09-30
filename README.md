@@ -1,53 +1,49 @@
-![](https://imgur.com/g5mjs4C.png)
+<p align="center">
+	<img src="https://imgur.com/g5mjs4C.png" alt="KaNovel Logo" align="center">
+	<p align="center">
+		KaNovel is a begginer friendly visual novel engine! 🦋
+        Using normal concepts you can make a novel :D
+	</p>
+</p>
 
-KaNovel is a begginer friendly visual novel engine! 🦋
-Using normal concepts you can make a novel :D
+> **This package/engine it's now in active development, may have bugs and unusable features**
 
 ## Quick Example
 
 ```js
-// We start importing Kaboom and Kanovel plugin
-import kaboom from "kaboom";
-import kanovelPlugin from "kanovel";
+import kanovel from "kaboom";
 
-// Starts the Kaboom context
-export default kaboom({
-    width: 800,
-    height: 600,
-    plugins: [ kanovelPlugin ], // IMPORTANT: Load the KaNovel plugin
-});
+kanovel();
 
-// Define your characters with id, name and sprite
 character("b", "Beany", "beany");
 character("m", "Marky", "marky");
 
-// The start of your story
 chapter("start", () => [
-    // Make your protagonist talk
-    prota("Two beautiful girls stare at me."),
+    say("b", "He is waiting"),
 
-    // Show & Talk as a character
-    show("b", "left"),
-    char("b", "Oh hi baby"),
+    show("m", "center"),
+    say("m", "Who?"),
 
-    show("m", "right");
-    char("m", "Hey, that's my line!"),
+    say("b", "What?"),
 ]);
-
-// Start your Visual Novel game
-go("vn");
 ```
 
 ## Installation
 
-## For Devs
+It's recommended use the [Replit Template](https://replit.com/@lajbel/KaNovel?v=1)
 
-### npm
+### For Devs
+
+#### NPM
 
 ```js
 npm i kanovel
 ```
 
-### cdn
+#### CDN
 
 you can load the library from cdns like `jsdelivr` or `unpkg`
+
+## Credits
+
+APL386 font by abrudz
