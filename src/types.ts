@@ -3,15 +3,11 @@ import { KaboomCtx, KaboomPlugin, KaboomOpt } from "kaboom";
 // KaNovel plugin function
 declare function kanovel(): KaboomCtx & KaNovelPlugin;
 
-// Typescript types and definitions  🧈
+/** A position */
 export type Position = [
-    /**
-     * X coordinate
-     */
+    /** X coordinate */
     number,
-    /**
-     * Y coordinate
-     */
+    /** Y coordinate */
     number
 ];
 
@@ -20,8 +16,8 @@ export interface KaNovelOpt extends KaboomOpt {}
 /** An action it's all that happens in the novel */
 export interface Action {
     id: string;
-    exe: any;
-    skip?: boolean;
+    run(): any;
+    skip(): any;
 }
 
 /** A character are the actors of the novel */

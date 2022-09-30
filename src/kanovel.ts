@@ -1,21 +1,17 @@
-import kaboom, { KaboomCtx, Vec2, GameObj } from "kaboom";
-import {
-    KaNovelPluginOpt,
+import kaboom, { KaboomCtx, GameObj } from "kaboom";
+import { TextboxComp } from "./components";
+import { addTextbox } from "./textbox";
+import { download } from "./util";
+
+import type {
     KaNovelPlugin,
     Character,
-    TextboxOpt,
-    NameboxOpt,
-    ChoiceOpt,
-    Position,
+    Action,
     CharacterExpression,
     KaNovelOpt,
 } from "./types";
-import { fade, TextboxComp } from "./components";
-import { array2Vec2, insertInArray, download } from "./util";
-import { addTextbox } from "./textbox";
 
-export { addTextbox } from "./textbox";
-
+// kaboom() handler for kanovel
 function kanovel(conf: KaNovelOpt) {
     kaboom({
         ...conf,
@@ -24,9 +20,10 @@ function kanovel(conf: KaNovelOpt) {
     });
 }
 
+// kanovel plugin
 export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
     const characters = new Map<string, Character>();
-    const chapters = new Map<string, any>();
+    const chapters = new Map<string, Action[]>();
 
     let curChapter = "start";
     let curAction = -1;
@@ -34,23 +31,26 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
 
     let textbox: GameObj<TextboxComp>;
 
+    // run the next action
     async function nextAction() {
         isAction = true;
         curAction++;
 
-        const action = chapters.get(curChapter)[curAction];
+        const action = chapters.get(curChapter)![curAction];
 
         await action.run();
 
         isAction = false;
     }
 
+    // skips the current action
     function skipAction() {
-        const action = chapters.get(curChapter)[curAction];
+        const action = chapters.get(curChapter)![curAction];
 
         if (action.skip) action.skip();
     }
 
+    // default scene for load kanovel gaems
     k.scene("kanovel", () => {
         textbox = addTextbox();
 
@@ -108,7 +108,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             if (!char) throw Error("Character not found");
 
             return {
-                id: "write",
+                id: "say",
                 async run() {
                     textbox.setName(char.name);
                     await textbox.write(text);

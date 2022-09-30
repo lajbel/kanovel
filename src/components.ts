@@ -1,7 +1,6 @@
-// Custom Kaboom components used by KaNovel
-
 import { Comp } from "kaboom";
 
+// textbox component
 export interface TextboxComp extends Comp {
     skipped: boolean;
     curChar: number;
@@ -58,6 +57,7 @@ export function textboxComp(): TextboxComp {
     };
 }
 
+// fade component
 export function fade(startFade?: "in" | "out") {
     let timer = 0;
 
