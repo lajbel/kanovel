@@ -12,27 +12,20 @@ KaNovel is a begginer friendly visual novel engine! 🦋
 
 ## Quick Example
 
-```javascript
-// Starts the game
-kanovel()
+```js
+import kanovel from "kaboom";
 
-// Define the characters with id, name and sprite
-character("b", "Beany", "beany")
-character("m", "Marky", "marky")
+kanovel();
 
-// The start chapter
+character("b", "Beany", "beany");
+character("m", "Marky", "marky");
+
 chapter("start", () => [
-    // Write as the protagonist
-    prota("Two beautiful girls stare at me.")
+    say("b", "He is waiting"),
 
-    // Show & Talk as a character
-    show("b", "left")
-    say("b", "Oh hi baby")
+    show("m", "center"),
+    say("m", "Who?"),
 
-    show("m", "right")
-    say("m", "Hey, that's my line!")
+    say("b", "What?"),
 ]);
-
-// Start the game
-go("vn");
 ```
