@@ -79,6 +79,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
 
     // @ts-ignore
     return {
+        // a creator for chapters
         chapter(title: string, actions: any) {
             if (chapters.get(title))
                 throw new Error(
@@ -88,6 +89,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             chapters.set(title, actions());
         },
 
+        // a creator for characters
         character(
             id: string,
             name: string,
@@ -102,6 +104,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             });
         },
 
+        // an action to make speak a character
         say(id: string, text: string) {
             const char = characters.get(id);
 
@@ -118,6 +121,8 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
                 },
             };
         },
+
+        // an action that plays background music
     };
 }
 
