@@ -58,6 +58,9 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         audios.set(audio, au);
     }
 
+    // show character
+    function showCharacter(char, align) {}
+
     // default scene for load kanovel gaems
     k.scene("kanovel", () => {
         // global volume
@@ -88,6 +91,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         go("kanovel");
     });
 
+    // TODO: Remove ts-ignore
     // @ts-ignore
     return {
         // a creator for chapters
@@ -115,6 +119,8 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             });
         },
 
+        ///////////////// NARRATION //////////////////////////
+
         // an action to make speak a character
         say(id: string, text: string): Action {
             const char = characters.get(id);
@@ -133,6 +139,15 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             };
         },
 
+        show(): Action {
+            return {
+                id: "show",
+                run() {},
+            };
+        },
+
+        ///////////////// MUSIC & AUDIO //////////////////////////
+
         // an action that plays background music
         playMusic(song: string): Action {
             return {
@@ -140,6 +155,14 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
                 async run() {
                     addAudio(song);
                 },
+            };
+        },
+
+        // an action that stops a current listening background music
+        stopMusic(song: string): Action {
+            return {
+                id: "stop",
+                async run() {},
             };
         },
     };

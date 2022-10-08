@@ -6,7 +6,7 @@
 	</p>
 </p>
 
-> **This package/engine it's now in active development, may have bugs and unusable features**
+> **This engine it's now in active development, may have bugs and unusable features**
 
 ## Quick Example
 
