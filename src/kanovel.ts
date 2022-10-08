@@ -24,6 +24,7 @@ function kanovel(conf: KaNovelOpt) {
 export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
     const characters = new Map<string, Character>();
     const chapters = new Map<string, Action[]>();
+    const audios = new Map<string, any>();
 
     let curChapter = "start";
     let curAction = -1;
@@ -50,8 +51,18 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         if (action.skip) action.skip();
     }
 
+    // adds an audio in the current audios
+    function addAudio(audio: string) {
+        let au = play(audio);
+
+        audios.set(audio, au);
+    }
+
     // default scene for load kanovel gaems
     k.scene("kanovel", () => {
+        // global volume
+        volume(0.5);
+
         textbox = addTextbox();
 
         nextAction();
@@ -105,7 +116,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         },
 
         // an action to make speak a character
-        say(id: string, text: string) {
+        say(id: string, text: string): Action {
             const char = characters.get(id);
 
             if (!char) throw Error("Character not found");
@@ -123,6 +134,14 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         },
 
         // an action that plays background music
+        playMusic(song: string): Action {
+            return {
+                id: "play",
+                async run() {
+                    addAudio(song);
+                },
+            };
+        },
     };
 }
 

@@ -16,8 +16,8 @@ export interface KaNovelOpt extends KaboomOpt {}
 /** An action it's all that happens in the novel */
 export interface Action {
     id: string;
-    run(): any;
-    skip(): any;
+    run(): void | Promise<void>;
+    skip?(): any;
 }
 
 /** A character are the actors of the novel */
@@ -228,29 +228,19 @@ export interface KaNovelPlugin {
         sprite: string
     ): void;
 
-    /**
-     * Play a music
-     */
-    music(
-        /**
-         * Audio loaded with Kaboom `loadAudio()`
-         */
+    /** Plays a music */
+    playMusic(
+        /** Audio loaded with Kaboom `loadAudio()` */
         song: string,
-        /**
-         * The audio volume from 0-100, default 50
-         */
+        /** The audio volume from 0-100, default 50 */
         volume: number
-    ): void;
+    ): Action;
 
-    /**
-     * Stop a music
-     */
-    stop_music(
-        /**
-         * String of the song
-         */
-        id?: string
-    ): void;
+    /** Stop a music */
+    stopMusic(
+        /** Song */
+        song: string
+    ): Action;
 
     /**
      * Create a choice
