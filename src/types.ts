@@ -16,6 +16,7 @@ export interface KaNovelOpt extends KaboomOpt {}
 /** An action it's all that happens in the novel */
 export interface Action {
     id: string;
+    autoskip?: boolean;
     run(): void | Promise<void>;
     skip?(): any;
 }

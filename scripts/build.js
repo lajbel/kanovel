@@ -197,4 +197,5 @@ function buildTypes() {
 
     writeFile(`${distDir}/kanovel.d.ts`, dts);
     writeFile(`${distDir}/global.d.ts`, globalDts);
+    writeFile(`${distDir}/global.js`, "");
 }

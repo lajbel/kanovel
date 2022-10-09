@@ -1,10 +1,11 @@
-import { GameObj } from "kaboom";
-import { textboxComp, TextboxComp } from "./components";
+import { GameObj, PosComp, AnchorComp} from "kaboom";
+import { textboxc, TextboxComp } from "./components";
 import { TextboxOpt } from "./types";
 import { array2Vec2 } from "./util";
 
-// TODO: update to childrens when new kaboom
-export function addTextbox(opt: TextboxOpt = {}): GameObj<TextboxComp> {
+import "kaboom/global";
+
+export function addTextbox(opt: TextboxOpt = {}): GameObj<PosComp | AnchorComp | TextboxComp> {
     const conf = {
         pos: array2Vec2(opt.pos ?? [0, height()]),
         width: opt.width ?? width(),
@@ -13,34 +14,40 @@ export function addTextbox(opt: TextboxOpt = {}): GameObj<TextboxComp> {
         border: opt.border ?? [10, 0, 0, 10],
     };
 
-    const textbox = add([
+    const textbox = make([
         pos(conf.pos),
-        // @ts-ignore
-        origin("botleft"),
-        textboxComp(),
+        anchor("botleft"),
+        textboxc(),
     ]);
 
-    textbox.bg = add([
-        pos(),
-        follow(textbox),
-        // @ts-ignore
-        origin("botleft"),
-        conf.sprite ? sprite(conf.sprite) : rect(conf.width, conf.height),
+    textbox.add([
+        pos(0, 0),
+        z(0),
+        conf.sprite
+            ? sprite(conf.sprite)
+            : rect(conf.width, conf.height),
+        anchor("botleft"),
+        "background",
     ]);
 
-    textbox.textBox = add([
-        pos(),
-        follow(textbox, vec2(0 + conf.border[3], -conf.height)),
-        text("", { size: 42, width: width() - conf.border[1] }),
+    textbox.add([
+        pos(0 + conf.border[3], -conf.height),
+        z(1),
+        anchor("topleft"),
+        text("asdas", { size: 42, width: width() - conf.border[1] }),
+        color(BLACK),
+        "textbox"
     ]);
 
-    textbox.nameBox = add([
-        pos(),
-        follow(textbox, vec2(0, -conf.height - 2)),
-        // @ts-ignore
-        origin("botleft"),
+    textbox.add([
+        z(1),
+        pos(0, -conf.height - 2),
+        anchor("botleft"),
         text("", { size: 82 }),
+        "namebox"
     ]);
 
-    return textbox as GameObj<TextboxComp>;
+    add(textbox);
+
+    return textbox;
 }

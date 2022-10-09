@@ -1,4 +1,4 @@
-import kaboom, { KaboomCtx, GameObj } from "kaboom";
+import kaboom, { KaboomCtx, GameObj, AudioPlay } from "kaboom";
 import { TextboxComp } from "./components";
 import { addTextbox } from "./textbox";
 import { download } from "./util";
@@ -12,19 +12,24 @@ import type {
 } from "./types";
 
 // kaboom() handler for kanovel
-function kanovel(conf: KaNovelOpt) {
-    kaboom({
-        ...conf,
-        background: conf?.background ?? [235, 152, 207],
+function kanovel(opt: KaNovelOpt = {}) {
+    const conf = {
+        width: opt.width ?? 1280,
+        height: opt.height ?? 720,
+        letterbox: opt.letterbox ?? true,
+        stretch: opt.stretch ?? true,
+        background: opt.background ?? [235, 152, 207],
         plugins: [kanovelPlugin],
-    });
+    };
+
+    kaboom(conf);
 }
 
 // kanovel plugin
 export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
     const characters = new Map<string, Character>();
     const chapters = new Map<string, Action[]>();
-    const audios = new Map<string, any>();
+    const audios = new Map<string, AudioPlay>();
 
     let curChapter = "start";
     let curAction = -1;
@@ -39,9 +44,13 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
 
         const action = chapters.get(curChapter)![curAction];
 
+        if (!action) return (isAction = false);
+
         await action.run();
 
         isAction = false;
+
+        if (action.autoskip) nextAction();
     }
 
     // skips the current action
@@ -58,8 +67,19 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         audios.set(audio, au);
     }
 
+    // remove an audio from the current audios
+    function removeAudio(audio: string) {
+        const a = audios.get(audio);
+
+        a?.stop();
+
+        audios.delete(audio);
+    }
+
     // show character
-    function showCharacter(char, align) {}
+    function showCharacter(char: string, align: "left" | "center" | "right") {
+
+    }
 
     // default scene for load kanovel gaems
     k.scene("kanovel", () => {
@@ -84,6 +104,8 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
                     temp();
                 });
             }
+
+            k.debug.log(`${isAction ? "on action" : "none"}`);
         });
     });
 
@@ -123,20 +145,32 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
 
         // an action to make speak a character
         say(id: string, text: string): Action {
-            const char = characters.get(id);
+            if (id && text) {
+                const char = characters.get(id);
 
-            if (!char) throw Error("Character not found");
+                if (!char) throw Error("Character not found");
 
-            return {
-                id: "say",
-                async run() {
-                    textbox.setName(char.name);
-                    await textbox.write(text);
-                },
-                skip() {
-                    textbox.skipText();
-                },
-            };
+                return {
+                    id: "say",
+                    async run() {
+                        textbox.setName(char.name);
+                        await textbox.write(text);
+                    },
+                    skip() {
+                        textbox.skipText();
+                    },
+                };
+            } else {
+                return {
+                    id: "say",
+                    async run() {
+                        await textbox.write(id);
+                    },
+                    skip() {
+                        textbox.skipText();
+                    },
+                };
+            }
         },
 
         show(): Action {
@@ -152,6 +186,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         playMusic(song: string): Action {
             return {
                 id: "play",
+                autoskip: true,
                 async run() {
                     addAudio(song);
                 },
@@ -162,7 +197,10 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         stopMusic(song: string): Action {
             return {
                 id: "stop",
-                async run() {},
+                autoskip: true,
+                async run() {
+                    removeAudio(song);
+                },
             };
         },
     };

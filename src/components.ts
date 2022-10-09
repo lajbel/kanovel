@@ -1,9 +1,14 @@
-import { Comp } from "kaboom";
+import { Comp, GameObj, TextComp } from "kaboom";
 
 // textbox component
 export interface TextboxComp extends Comp {
     skipped: boolean;
     curChar: number;
+    /** Textbox */
+    textbox?: GameObj;
+    /** Namebox */
+    namebox?: GameObj;
+
     /** Write a text */
     write(text: string): Promise<void>;
     /** Set the name of namebox */
@@ -12,23 +17,33 @@ export interface TextboxComp extends Comp {
     skipText(): void;
 }
 
-export function textboxComp(): TextboxComp {
+export function textboxc(): TextboxComp {
+    let textbox: GameObj<TextComp>;
+    let namebox: GameObj<TextComp>;
+
     return {
-        id: "textbox",
+        id: "kn_textbox",
         require: [],
 
         curChar: 0,
         skipped: false,
 
+        add() {
+            console.log(this.children)
+
+            textbox = this.getAll("textbox")[0];
+            namebox = this.getAll("namebox")[0];
+        },
+
         write(txt: string) {
             return new Promise((resolve) => {
-                this.textBox.text = "";
+                textbox.text = "";
 
                 const stopWriting = loop(0.05, () => {
                     if (this.skipped) {
                         this.skipped = false;
 
-                        this.textBox.text = txt;
+                        textbox.text = txt;
 
                         this.curChar = 0;
 
@@ -37,7 +52,7 @@ export function textboxComp(): TextboxComp {
                         return stopWriting();
                     }
 
-                    this.textBox.text += txt[this.curChar];
+                    textbox.text += txt[this.curChar];
                     this.curChar++;
 
                     if (this.curChar == txt.length) {
@@ -49,7 +64,7 @@ export function textboxComp(): TextboxComp {
             });
         },
         setName(txt: string) {
-            this.nameBox.text = txt;
+            namebox.text = txt;
         },
         skipText() {
             if (!this.skipped) this.skipped = true;
