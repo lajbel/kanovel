@@ -3,13 +3,7 @@ import { TextboxComp } from "./components";
 import { addTextbox } from "./textbox";
 import { download } from "./util";
 
-import type {
-    KaNovelPlugin,
-    Character,
-    Action,
-    CharacterExpression,
-    KaNovelOpt,
-} from "./types";
+import type { KaNovelPlugin, Character, Action, CharacterExpression, KaNovelOpt } from "./types";
 
 // kaboom() handler for kanovel
 function kanovel(opt: KaNovelOpt = {}) {
@@ -62,7 +56,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
 
     // adds an audio in the current audios
     function addAudio(audio: string) {
-        let au = play(audio);
+        let au = k.play(audio);
 
         audios.set(audio, au);
     }
@@ -77,13 +71,13 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
     }
 
     // show character
-    function showCharacter(char: string, align: "left" | "center" | "right") {
-
+    function showCharacter(character: string, align: "left" | "center" | "right") {
+        const ch = characters.get(character);
     }
 
     // default scene for load kanovel gaems
     k.scene("kanovel", () => {
-        // global volume
+        // default global volume
         volume(0.5);
 
         textbox = addTextbox();
@@ -104,13 +98,11 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
                     temp();
                 });
             }
-
-            k.debug.log(`${isAction ? "on action" : "none"}`);
         });
     });
 
     k.onLoad(() => {
-        go("kanovel");
+        k.go("kanovel");
     });
 
     // TODO: Remove ts-ignore
@@ -118,21 +110,13 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
     return {
         // a creator for chapters
         chapter(title: string, actions: any) {
-            if (chapters.get(title))
-                throw new Error(
-                    `You can't repeat the chapter name! "${title}"`
-                );
+            if (chapters.get(title)) throw new Error(`You can't repeat the chapter name! "${title}"`);
 
             chapters.set(title, actions());
         },
 
         // a creator for characters
-        character(
-            id: string,
-            name: string,
-            sprite: string,
-            expressions?: CharacterExpression[]
-        ) {
+        character(id: string, name: string, sprite: string, expressions?: CharacterExpression[]) {
             characters.set(id, {
                 id,
                 name,
@@ -144,9 +128,9 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         ///////////////// NARRATION //////////////////////////
 
         // an action to make speak a character
-        say(id: string, text: string): Action {
-            if (id && text) {
-                const char = characters.get(id);
+        say(...args: string[]): Action {
+            if (args.length === 2) {
+                const char = characters.get(args[0]);
 
                 if (!char) throw Error("Character not found");
 
@@ -154,7 +138,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
                     id: "say",
                     async run() {
                         textbox.setName(char.name);
-                        await textbox.write(text);
+                        await textbox.write(args[1]);
                     },
                     skip() {
                         textbox.skipText();
@@ -164,7 +148,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
                 return {
                     id: "say",
                     async run() {
-                        await textbox.write(id);
+                        await textbox.write(args[0]);
                     },
                     skip() {
                         textbox.skipText();
@@ -173,10 +157,12 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             }
         },
 
-        show(): Action {
+        show(character: string): Action {
             return {
                 id: "show",
-                run() {},
+                run() {
+                    showCharacter(character, "center");
+                },
             };
         },
 

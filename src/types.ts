@@ -37,6 +37,10 @@ export interface CharacterExpression {
     sprite: string;
 }
 
+export interface CharacterOpt {
+    color: string;
+}
+
 export interface TextOpt {
     font: string;
     maxWidth: number;
@@ -154,9 +158,7 @@ export interface KaNovelPlugin {
      * @example
      * ```js
      * chapter("start", () => [
-     *    prota("Ohh today is a great day!"),
-     *    prota("I want..."),
-     *    prota("I want to live a visual novel life!"),
+     *    say("Ohh today is a great day!"),
      * ]);
      * ```
      */
@@ -171,6 +173,27 @@ export interface KaNovelPlugin {
         actions: any[]
     ): void;
 
+    /** Write in the textbox
+     *
+     * @example
+     * ```js
+     * // write as narrator
+     * say("Sack is so stupid")
+     * ```
+     */
+    say(
+        /** Text to say */
+        text: string
+    ): Action;
+
+    /** Write in the textbox as character */
+    say(
+        /** The character's id */
+        id: string,
+        /** Text to say */
+        text: string
+    ): Action;
+
     /**
      * Jump to other chapter
      */
@@ -182,37 +205,9 @@ export interface KaNovelPlugin {
     ): void;
 
     /**
-     * Write as the protagonist
-     */
-    prota(dialog: string): void;
-
-    /**
-     * Write as the narrator
-     */
-    narrator(dialog: string): void;
-
-    /**
-     * Write as a character
-     */
-    say(
-        /**
-         * The character's id
-         */
-        id: string,
-        /**
-         * Text to say
-         */
-        text: string
-    ): void;
-
-    /**
      * Show a character
      */
-    show(
-        charId: string,
-        align?: "center" | "left" | "right" | Position,
-        expression?: string
-    ): void;
+    show(charId: string, align?: "center" | "left" | "right" | Position, expression?: string): void;
 
     /**
      * Hide a character

@@ -29,10 +29,8 @@ export function textboxc(): TextboxComp {
         skipped: false,
 
         add() {
-            console.log(this.children)
-
-            textbox = this.getAll("textbox")[0];
-            namebox = this.getAll("namebox")[0];
+            textbox = this.get("textbox")[0];
+            namebox = this.get("namebox")[0];
         },
 
         write(txt: string) {
