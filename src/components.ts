@@ -1,4 +1,5 @@
 import { Comp, GameObj, TextComp } from "kaboom";
+import "kaboom/global";
 
 // textbox component
 export interface TextboxComp extends Comp {
