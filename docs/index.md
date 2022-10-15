@@ -6,26 +6,10 @@ nav_order: 1
 
 # KaNovel
 
-KaNovel is a begginer friendly visual novel engine! 🦋
+KaNovel is a visual novel engine, **lightweight**, **beginner-friendly** and **under development!**. 🦋
 
 [Tutorial](/concepts) - [Itch.io](https://lajbel.itch.io/kanovel)
 
-## Quick Example
+## Games
 
-```js
-import kanovel from "kaboom";
-
-kanovel();
-
-character("b", "Beany", "beany");
-character("m", "Marky", "marky");
-
-chapter("start", () => [
-    say("b", "He is waiting"),
-
-    show("m", "center"),
-    say("m", "Who?"),
-
-    say("b", "What?"),
-]);
-```
+nothing here... (for now)
