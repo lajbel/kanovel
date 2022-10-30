@@ -23,13 +23,12 @@ export interface Action {
 
 /** A character are the actors of the novel */
 export interface Character {
-    /** ID of the character */
+    /** Character's id */
     id: string;
-    /** The visual name of the character */
+    /** Character's display name */
     name: string;
-    /** A default sprite for the character */
-    sprite: string;
-    expressions: CharacterExpression[];
+    /** Character's options and extras */
+    opt: CharacterOpt;
 }
 
 export interface CharacterExpression {
@@ -38,6 +37,7 @@ export interface CharacterExpression {
 }
 
 export interface CharacterOpt {
+    expressions: CharacterExpression[];
     color: string;
 }
 
@@ -143,13 +143,9 @@ export interface KaNovelPlugin {
          */
         name: string,
         /**
-         * Default sprite for use it whit show()
+         * Options of character
          */
-        defaultSprite?: string,
-        /**
-         * Expressions of the Character
-         */
-        expressions?: CharacterExpression[]
+        opt?: CharacterOpt
     ): void;
 
     /**
@@ -207,7 +203,11 @@ export interface KaNovelPlugin {
     /**
      * Show a character
      */
-    show(charId: string, align?: "center" | "left" | "right" | Position, expression?: string): void;
+    show(
+        charId: string,
+        align?: "center" | "left" | "right" | Position,
+        expression?: string
+    ): void;
 
     /**
      * Hide a character

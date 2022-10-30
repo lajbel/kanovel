@@ -1,9 +1,16 @@
 import kaboom, { KaboomCtx, GameObj, AudioPlay } from "kaboom";
-import { TextboxComp } from "./components";
+import { TextboxComp, fade } from "./components";
 import { addTextbox } from "./textbox";
 import { download } from "./util";
 
-import type { KaNovelPlugin, Character, Action, CharacterExpression, KaNovelOpt } from "./types";
+import type {
+    KaNovelPlugin,
+    Character,
+    Action,
+    CharacterExpression,
+    KaNovelOpt,
+    CharacterOpt,
+} from "./types";
 
 // kaboom() handler for kanovel
 function kanovel(opt: KaNovelOpt = {}) {
@@ -73,6 +80,14 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
     // show character
     function showCharacter(character: string, align: "left" | "center" | "right") {
         const ch = characters.get(character);
+
+        const alignments = {
+            left: [k.anchor("botleft"), k.pos(0, k.height())],
+            center: [k.anchor("bot"), k.pos(k.center().x, k.height())],
+            right: [k.anchor("botright"), k.pos(k.width(), k.height())],
+        };
+
+        k.add([k.sprite("bean"), k.opacity(0), ...alignments[align], fade("in")]);
     }
 
     // default scene for load kanovel gaems
@@ -110,18 +125,18 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
     return {
         // a creator for chapters
         chapter(title: string, actions: any) {
-            if (chapters.get(title)) throw new Error(`You can't repeat the chapter name! "${title}"`);
+            if (chapters.get(title))
+                throw new Error(`You can't repeat the chapter name! "${title}"`);
 
             chapters.set(title, actions());
         },
 
         // a creator for characters
-        character(id: string, name: string, sprite: string, expressions?: CharacterExpression[]) {
+        character(id: string, name: string, opt: CharacterOpt) {
             characters.set(id, {
                 id,
                 name,
-                sprite,
-                expressions: expressions!,
+                opt,
             });
         },
 
