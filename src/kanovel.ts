@@ -81,13 +81,23 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
     function showCharacter(character: string, align: "left" | "center" | "right") {
         const ch = characters.get(character);
 
+        if (!ch) throw Error("Character's id not found.");
+
         const alignments = {
             left: [k.anchor("botleft"), k.pos(0, k.height())],
             center: [k.anchor("bot"), k.pos(k.center().x, k.height())],
             right: [k.anchor("botright"), k.pos(k.width(), k.height())],
         };
 
-        k.add([k.sprite("bean"), k.opacity(0), ...alignments[align], fade("in")]);
+        k.add([k.sprite("bean"), k.opacity(0), ...alignments[align], fade("in"), ch.id]);
+    }
+
+    function hideCharacter(character: string) {
+        const ch = characters.get(character);
+
+        if (!ch) throw Error("Character's id not found.");
+
+        get(ch.id)[0].destroy();
     }
 
     // default scene for load kanovel gaems
@@ -177,6 +187,15 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
                 id: "show",
                 run() {
                     showCharacter(character, "center");
+                },
+            };
+        },
+
+        hide(character: string): Action {
+            return {
+                id: "hide",
+                run() {
+                    hideCharacter(character);
                 },
             };
         },
