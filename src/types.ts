@@ -31,6 +31,8 @@ export interface Character {
     opt: CharacterOpt;
 }
 
+/** A chapter it's how the novel its stored in the time */
+export interface Chapter {}
 export interface CharacterExpression {
     name: string;
     sprite: string;
@@ -198,7 +200,7 @@ export interface KaNovelPlugin {
          * Chapter to jump
          */
         chapter: string
-    ): void;
+    ): Action;
 
     /**
      * Show a character
@@ -207,12 +209,12 @@ export interface KaNovelPlugin {
         charId: string,
         align?: "center" | "left" | "right" | Position,
         expression?: string
-    ): void;
+    ): Action;
 
     /**
      * Hide a character
      */
-    hide(charId: string): void;
+    hide(charId: string): Action;
 
     /** Plays a music */
     playMusic(
