@@ -168,7 +168,7 @@ export interface KaNovelPlugin {
         /**
          * Actions of the chapter
          */
-        actions: any[]
+        actions: ((...data: any) => Action)[]
     ): void;
 
     /** Write in the textbox

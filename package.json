@@ -1,7 +1,7 @@
 {
     "name": "kanovel",
     "version": "1.0.0",
-    "description": "Make visual novels in the browser",
+    "description": "Make visual novels",
     "main": "./dist/kanovel.cjs",
     "module": "./dist/kanovel.mjs",
     "types": "./dist/kanovel.d.ts",
