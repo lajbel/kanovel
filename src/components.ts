@@ -13,7 +13,7 @@ export interface TextboxComp extends Comp {
     /** Write a text */
     write(text: string): Promise<void>;
     /** Set the name of namebox */
-    setName(text: string): void;
+    setName(text: string, color?: string | number | typeof Color): void;
     /** Skip current writing text */
     skipText(): void;
 }
@@ -62,8 +62,11 @@ export function textboxc(): TextboxComp {
                 });
             });
         },
-        setName(txt: string) {
+        setName(txt, colour?) {
             namebox.text = txt;
+            namebox.use(
+                color(colour ? Color.fromHex(String(colour)) : rgb(255, 255, 255))
+            );
         },
         skipText() {
             if (!this.skipped) this.skipped = true;

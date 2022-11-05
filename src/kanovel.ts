@@ -173,7 +173,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
                 return {
                     id: "say",
                     async run() {
-                        textbox.setName(char.name);
+                        textbox.setName(char.name, char.opt?.color!);
                         await textbox.write(args[1]);
                     },
                     skip() {
@@ -184,6 +184,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
                 return {
                     id: "say",
                     async run() {
+                        textbox.setName(" ");
                         await textbox.write(args[0]);
                     },
                     skip() {
@@ -215,6 +216,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         jump(chapter: string) {
             return {
                 id: "jump",
+                autoskip: true,
                 run() {
                     changeChapter(chapter);
                 },

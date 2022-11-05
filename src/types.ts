@@ -39,8 +39,10 @@ export interface CharacterExpression {
 }
 
 export interface CharacterOpt {
-    expressions: CharacterExpression[];
-    color: string;
+    /** Character's display name colour */
+    color?: string;
+    /** Character's expressions */
+    expressions?: CharacterExpression[];
 }
 
 export interface TextOpt {
@@ -168,7 +170,7 @@ export interface KaNovelPlugin {
         /**
          * Actions of the chapter
          */
-        actions: ((...data: any) => Action)[]
+        actions: () => Action[]
     ): void;
 
     /** Write in the textbox
