@@ -214,16 +214,6 @@ export interface KaNovelPlugin {
      */
     hide(charId: string): void;
 
-    /**
-     * Show a background
-     */
-    bg(
-        /**
-         * Background's sprite
-         */
-        sprite: string
-    ): void;
-
     /** Plays a music */
     playMusic(
         /** Audio loaded with Kaboom `loadAudio()` */
@@ -237,26 +227,6 @@ export interface KaNovelPlugin {
         /** Song */
         song: string
     ): Action;
-
-    /**
-     * Create a choice
-     */
-    choice(
-        /**
-         * Cnoices
-         */
-        ...choices: any[]
-    ): void;
-
-    /**
-     * End the novel and go to other scene
-     */
-    end(toGo?: string, endScene?: string, opt?: { withBurp: boolean }): void;
-
-    /**
-     * End the novel and go to other scene with burp
-     */
-    burpy(toGo?: string, endScene?: string): void;
 }
 
 export default kanovel;

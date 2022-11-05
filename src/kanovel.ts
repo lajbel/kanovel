@@ -61,6 +61,22 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         if (action.skip) action.skip();
     }
 
+    // add a chapter
+    function addChapter(title: string, actions: any) {
+        if (chapters.get(title))
+            throw new Error(`You can't repeat the chapter name! "${title}"`);
+
+        chapters.set(title, actions());
+    }
+
+    // change the chapters
+    function changeChapter(chapter: string) {
+        if (!chapters.get(chapter)) throw new Error(`Chapter not found: ${chapter}`);
+
+        curChapter = chapter;
+        curAction = -1;
+    }
+
     // adds an audio in the current audios
     function addAudio(audio: string) {
         let au = k.play(audio);
@@ -130,15 +146,10 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         k.go("kanovel");
     });
 
-    // TODO: Remove ts-ignore
-    // @ts-ignore
     return {
         // a creator for chapters
         chapter(title: string, actions: any) {
-            if (chapters.get(title))
-                throw new Error(`You can't repeat the chapter name! "${title}"`);
-
-            chapters.set(title, actions());
+            addChapter(title, actions);
         },
 
         // a creator for characters
@@ -199,6 +210,21 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
                 },
             };
         },
+
+        // Jumps to another chapter
+        jump(chapter: string) {
+            return {
+                id: "jump",
+                run() {
+                    changeChapter(chapter);
+                },
+            };
+        },
+
+        ///////////////// VISUALS AND ++ //////////////////////////
+
+        // // an action that shows a background image
+        // showStage() {},
 
         ///////////////// MUSIC & AUDIO //////////////////////////
 
