@@ -121,6 +121,8 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         // default global volume
         volume(0.5);
 
+        if (!chapters.get("start")) throw Error("Should define a start chapter.");
+
         textbox = addTextbox();
 
         nextAction();
