@@ -130,30 +130,30 @@ export interface KaNovelPluginOpt {
 
 export interface KaNovelPlugin {
     /**
-     * Define a Character
+     * Define a character.
      *
      * @example
      * ```js
-     * character("b", "Beany", "beany");
+     * character("b", "Beany");
      * ```
      */
     character(
         /**
-         * Identifier to use the character
+         * Identifier to use the character.
          */
         id: string,
         /**
-         * Name of the character
+         * Name of the character.
          */
         name: string,
         /**
-         * Options of character
+         * Options of character.
          */
         opt?: CharacterOpt
     ): void;
 
     /**
-     * Define a chapter
+     * Define a chapter.
      *
      * @example
      * ```js
@@ -164,16 +164,16 @@ export interface KaNovelPlugin {
      */
     chapter(
         /**
-         * The title of the chapter
+         * The title of the chapter.
          */
         title: string,
         /**
-         * Actions of the chapter
+         * Actions of the chapter.
          */
         actions: () => Action[]
     ): void;
 
-    /** Write in the textbox
+    /** Write in the textbox.
      *
      * @example
      * ```js
@@ -182,11 +182,11 @@ export interface KaNovelPlugin {
      * ```
      */
     say(
-        /** Text to say */
+        /** Text to say. */
         text: string
     ): Action;
 
-    /** Write in the textbox as character */
+    /** Write in the textbox as character. */
     say(
         /** The character's id */
         id: string,
@@ -195,7 +195,7 @@ export interface KaNovelPlugin {
     ): Action;
 
     /**
-     * Jump to other chapter
+     * Jump to other chapter.
      */
     jump(
         /**
@@ -205,7 +205,7 @@ export interface KaNovelPlugin {
     ): Action;
 
     /**
-     * Show a character
+     * Show a character.
      */
     show(
         charId: string,
@@ -214,11 +214,11 @@ export interface KaNovelPlugin {
     ): Action;
 
     /**
-     * Hide a character
+     * Hide a character.
      */
     hide(charId: string): Action;
 
-    /** Plays a music */
+    /** Plays a music. */
     playMusic(
         /** Audio loaded with Kaboom `loadAudio()` */
         song: string,
@@ -226,7 +226,7 @@ export interface KaNovelPlugin {
         volume: number
     ): Action;
 
-    /** Stop a music */
+    /** Stop a music. */
     stopMusic(
         /** Song */
         song: string
