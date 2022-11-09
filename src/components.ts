@@ -10,12 +10,19 @@ export interface TextboxComp extends Comp {
     /** Namebox */
     namebox?: GameObj;
 
+    /** Custom add */
+    addEx(): void;
+
     /** Write a text */
     write(text: string): Promise<void>;
     /** Set the name of namebox */
     setName(text: string, color?: string | number | typeof Color): void;
-    /** Skip current writing text */
+    /** Skip current writng text */
     skipText(): void;
+    /** Show the textbox */
+    show(): void;
+    /** Hide the textbox */
+    hide(): void;
 }
 
 export function textboxc(): TextboxComp {
@@ -29,7 +36,7 @@ export function textboxc(): TextboxComp {
         curChar: 0,
         skipped: false,
 
-        add() {
+        addEx() {
             textbox = this.get("textbox")[0];
             namebox = this.get("namebox")[0];
         },
@@ -38,7 +45,7 @@ export function textboxc(): TextboxComp {
             return new Promise((resolve) => {
                 textbox.text = "";
 
-                const stopWriting = loop(0.05, () => {
+                const writing = loop(0.05, () => {
                     if (this.skipped) {
                         this.skipped = false;
 
@@ -48,7 +55,7 @@ export function textboxc(): TextboxComp {
 
                         resolve();
 
-                        return stopWriting();
+                        return writing();
                     }
 
                     textbox.text += txt[this.curChar];
@@ -56,8 +63,10 @@ export function textboxc(): TextboxComp {
 
                     if (this.curChar == txt.length) {
                         this.curChar = 0;
+
                         resolve();
-                        return stopWriting();
+
+                        return writing();
                     }
                 });
             });
@@ -70,6 +79,12 @@ export function textboxc(): TextboxComp {
         },
         skipText() {
             if (!this.skipped) this.skipped = true;
+        },
+        show() {
+            this.use(fade("in"));
+        },
+        hide() {
+            this.use(fade("out"));
         },
     };
 }
@@ -94,17 +109,11 @@ export function fade(startFade?: "in" | "out") {
         },
 
         fadeIn(time: number = 1) {
-            const cancelFadeIn = onUpdate(() => {
-                if (this.opacity > 1) return cancelFadeIn();
-
-                timer += dt();
-
-                this.opacity = map(timer, 0, time, 0, 1);
-            });
+            tween(this.opacity, 1, time, (val) => (this.opacity = val), easings.linear);
         },
 
-        fadeOut() {
-            this.use(lifespan(1, { fade: 1 }));
+        fadeOut(time: number = 1) {
+            tween(this.opacity, 0, time, (val) => (this.opacity = val), easings.linear);
         },
     };
 }

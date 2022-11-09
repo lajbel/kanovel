@@ -1,6 +1,6 @@
 {
     "name": "kanovel",
-    "version": "1.0.0",
+    "version": "1.0.0-alpha.1",
     "description": "Make visual novels",
     "main": "./dist/kanovel.cjs",
     "module": "./dist/kanovel.mjs",
@@ -37,7 +37,7 @@
     "author": "lajbel <lajbelms@gmail.com>",
     "license": "MIT",
     "dependencies": {
-        "kaboom": "^3000.0.0-alpha.2"
+        "kaboom": "^3000.0.0-alpha.3"
     },
     "devDependencies": {
         "esbuild": "^0.15.5",

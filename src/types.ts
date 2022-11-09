@@ -231,6 +231,10 @@ export interface KaNovelPlugin {
         /** Song */
         song: string
     ): Action;
+
+    showTextbox(): Action;
+
+    hideTextbox(): Action;
 }
 
 export default kanovel;

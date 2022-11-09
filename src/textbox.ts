@@ -14,7 +14,7 @@ export function addTextbox(opt: TextboxOpt = {}): GameObj<PosComp | AnchorComp |
         border: opt.border ?? [10, 0, 0, 10],
     };
 
-    const textbox = make([
+    const textbox = add([
         pos(conf.pos),
         anchor("botleft"),
         textboxc(),
@@ -47,7 +47,7 @@ export function addTextbox(opt: TextboxOpt = {}): GameObj<PosComp | AnchorComp |
         "namebox"
     ]);
 
-    add(textbox);
+    textbox.addEx();
 
     return textbox;
 }
