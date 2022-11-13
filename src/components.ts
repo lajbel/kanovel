@@ -90,7 +90,7 @@ export function textboxc(): TextboxComp {
 }
 
 // fade component
-export function fade(startFade?: "in" | "out") {
+export function fade(startFade?: "in" | "out", startFadeTime?: number) {
     let timer = 0;
 
     return {
@@ -98,10 +98,10 @@ export function fade(startFade?: "in" | "out") {
         add() {
             switch (startFade) {
                 case "in":
-                    this.fadeIn();
+                    this.fadeIn(startFadeTime ?? 1);
                     break;
                 case "out":
-                    this.fadeOut();
+                    this.fadeOut(startFadeTime ?? 1);
                     break;
                 default:
                     break;

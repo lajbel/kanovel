@@ -7,9 +7,9 @@ import type {
     KaNovelPlugin,
     Character,
     Action,
-    CharacterExpression,
     KaNovelOpt,
     CharacterOpt,
+    SkippableAction,
 } from "./types";
 
 // kaboom() handler for kanovel
@@ -94,10 +94,17 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
     }
 
     // show character
-    function showCharacter(character: string, align: "left" | "center" | "right") {
+    function showCharacter(
+        character: string,
+        expression: string,
+        align: "left" | "center" | "right"
+    ) {
         const ch = characters.get(character);
-
         if (!ch) throw Error("Character's id not found.");
+
+        const exp = ch.opt.expressions?.[expression];
+
+        if (!exp) throw Error(`Character's expression ${expression} not found.`);
 
         const alignments = {
             left: [k.anchor("botleft"), k.pos(0, k.height())],
@@ -105,7 +112,14 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             right: [k.anchor("botright"), k.pos(k.width(), k.height())],
         };
 
-        k.add([k.sprite("bean"), k.opacity(0), ...alignments[align], fade("in"), ch.id]);
+        k.add([
+            k.sprite(exp),
+            k.opacity(0),
+            ...alignments[align],
+            fade("in", 0.4),
+            z(100),
+            ch.id,
+        ]);
     }
 
     function hideCharacter(character: string) {
@@ -196,11 +210,21 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             }
         },
 
-        show(character: string): Action {
+        show(
+            character: string,
+            expression: string,
+            align: "left" | "center" | "right" = "center"
+        ): SkippableAction {
             return {
                 id: "show",
+                autoskip: true,
                 run() {
-                    showCharacter(character, "center");
+                    showCharacter(character, expression, align);
+                },
+                noSkip() {
+                    this.autoskip = false;
+
+                    return this;
                 },
             };
         },

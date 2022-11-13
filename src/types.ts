@@ -21,6 +21,11 @@ export interface Action {
     skip?(): any;
 }
 
+export interface SkippableAction extends Action {
+    /** Avoid the auto skip of the action, and waits the user click */
+    noSkip(): Action;
+}
+
 /** A character are the actors of the novel */
 export interface Character {
     /** Character's id */
@@ -31,18 +36,14 @@ export interface Character {
     opt: CharacterOpt;
 }
 
-/** A chapter it's how the novel its stored in the time */
+/** A **chapter** it's how the novel its stored in the time. */
 export interface Chapter {}
-export interface CharacterExpression {
-    name: string;
-    sprite: string;
-}
 
 export interface CharacterOpt {
-    /** Character's display name colour */
+    /** Character's display name colour. */
     color?: string;
-    /** Character's expressions */
-    expressions?: CharacterExpression[];
+    /** Character's expressions. */
+    expressions?: { [name: string]: string };
 }
 
 export interface TextOpt {
@@ -51,45 +52,26 @@ export interface TextOpt {
 }
 
 export interface TextboxOpt {
-    /**
-     * Kaboom loaded sprite for use in textbox
-     */
+    /** Kaboom loaded sprite for use in textbox */
     sprite?: string;
 
-    /**
-     * Position of the Textbox
-     */
+    /** Textbox's position (x, y) */
     pos?: Position;
 
-    /**
-     * Width of the textbox
-     */
+    /** Textbox's width */
     width?: number;
 
-    /**
-     * Height of the textbox
-     */
+    /** Textbox's height */
     height?: number;
 
-    /**
-     * Size of the text of the textbox
-     */
+    /** Textbox's text size */
     size?: number;
 
-    /**
-     * Border of the text of the textbox
-     */
+    /** Textbox's text font */
+    font?: string;
+
+    /** Textbox's text border */
     border?: [number, number, number, number];
-
-    /**
-     * Text of the textbox
-     */
-    text?: TextOpt;
-
-    /**
-     * Use custom components in the textbox game object
-     */
-    // components?: CompList<any>;
 }
 
 export interface NameboxOpt {
@@ -208,10 +190,10 @@ export interface KaNovelPlugin {
      * Show a character.
      */
     show(
-        charId: string,
-        align?: "center" | "left" | "right" | Position,
-        expression?: string
-    ): Action;
+        character: string,
+        expression: string,
+        align?: "center" | "left" | "right" | Position
+    ): SkippableAction;
 
     /**
      * Hide a character.
