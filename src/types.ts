@@ -1,7 +1,7 @@
 import { KaboomCtx, KaboomPlugin, KaboomOpt } from "kaboom";
 
 // KaNovel plugin function
-declare function kanovel(): KaboomCtx & KaNovelPlugin;
+declare function kanovel(opt?: KaNovelOpt): KaboomCtx & KaNovelPlugin;
 
 /** A position */
 export type Position = [
@@ -11,7 +11,10 @@ export type Position = [
     number
 ];
 
-export interface KaNovelOpt extends KaboomOpt {}
+export interface KaNovelOpt extends KaboomOpt {
+    textbox?: TextboxOpt;
+    namebox?: NameboxOpt;
+}
 
 /** An action it's all that happens in the novel */
 export interface Action {
@@ -75,25 +78,26 @@ export interface TextboxOpt {
 }
 
 export interface NameboxOpt {
-    /**
-     * Kaboom loaded sprite for use in namebox
-     */
+    /** Kaboom loaded sprite for use in textbox */
     sprite?: string;
 
-    /**
-     * Width of the namebox
-     */
+    /** Textbox's position (x, y) */
+    pos?: Position;
+
+    /** Textbox's width */
     width?: number;
 
-    /**
-     * Height of the namebox
-     */
+    /** Textbox's height */
     height?: number;
 
-    /**
-     * Use custom components in the namebox game object
-     */
-    // components?: CompList<any>;
+    /** Textbox's text size */
+    size?: number;
+
+    /** Textbox's text font */
+    font?: string;
+
+    /** Textbox's text border */
+    border?: [number, number, number, number];
 }
 
 export interface ChoiceOpt {

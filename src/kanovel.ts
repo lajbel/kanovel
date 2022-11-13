@@ -12,6 +12,8 @@ import type {
     SkippableAction,
 } from "./types";
 
+let globalOpt;
+
 // kaboom() handler for kanovel
 function kanovel(opt: KaNovelOpt = {}) {
     const conf = {
@@ -21,9 +23,13 @@ function kanovel(opt: KaNovelOpt = {}) {
         stretch: opt.stretch ?? true,
         background: opt.background ?? [235, 152, 207],
         plugins: [kanovelPlugin],
+
+        textbox: opt.textbox || {},
     };
 
     kaboom(conf);
+
+    globalOpt = conf;
 }
 
 // kanovel plugin
@@ -137,11 +143,11 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
 
         if (!chapters.get("start")) throw Error("Should define a start chapter.");
 
-        textbox = addTextbox();
+        textbox = addTextbox(globalOpt.textbox ?? {});
 
         nextAction();
 
-        // Default input for Visual Novel
+        // Default input
         k.onUpdate(() => {
             if (k.isMousePressed("left") || k.isKeyPressed("space")) {
                 if (!isAction) nextAction();
