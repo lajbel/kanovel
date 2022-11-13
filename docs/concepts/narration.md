@@ -17,7 +17,7 @@ kanovel()
 character("d", "Danie")
 
 chapter("start", () => [
-	say("Hello World")
+  say("Hello World")
 ])
 ```
 

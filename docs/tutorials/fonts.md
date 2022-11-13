@@ -7,6 +7,8 @@ nav_order: 1
 
 ## Use custom fonts
 
+**OUTDATED TUTORIAL FOR OLD KANOVEL**
+
 OpenType and TrueType fonts will not be supported until Kaboom is released
 from version 2000. So here's a short tutorial on how to load your own fonts
 using [Font2BitMap](https://stmn.itch.io/font2bitmap)

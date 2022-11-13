@@ -46,7 +46,7 @@ kanovel()
 character("d", "Danie")
 
 chapter("start", () => [
-	// here will be the actions
+  // here will be the actions
 ])
 ```
 Yeah! now we have a basically structure for start writing the **narration** of our novel 🐝
