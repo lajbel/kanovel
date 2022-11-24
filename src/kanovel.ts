@@ -137,10 +137,10 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
 
     // show the background
     function showBackground(bg: string) {
-        add([
-            pos(center()),
-            anchor("center"),
-            sprite(bg),
+        k.add([
+            k.pos(k.center()),
+            k.anchor("center"),
+            k.sprite(bg),
             fade(),
             "bg"
         ]);
@@ -149,7 +149,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
     // default scene for load kanovel gaems
     k.scene("kanovel", () => {
         // default global volume
-        volume(0.5);
+        k.volume(0.5);
 
         if (!chapters.get("start")) throw Error("Should define a start chapter.");
 

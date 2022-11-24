@@ -4,7 +4,7 @@
 
     -   `addTextbox()`
 
--   removed `char()` in favor of `say()`
+-   removed `char()` and `narrator()` in favor of `say()`
 -   added `SkippableAction#noSkip()` for wait theclick of the user (ex `show().noSkip()`)
 -   better typescript
 
