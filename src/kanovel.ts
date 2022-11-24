@@ -141,6 +141,8 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             pos(center()),
             anchor("center"),
             sprite(bg),
+            fade(),
+            "bg"
         ]);
     }
 
@@ -155,7 +157,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
 
         nextAction();
 
-        // Default input
+        // default input
         k.onUpdate(() => {
             if (k.isMousePressed("left") || k.isKeyPressed("space")) {
                 if (!isAction) nextAction();
@@ -252,7 +254,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             };
         },
 
-        // Jumps to another chapter
+        // jumps to another chapter
         jump(chapter: string) {
             return {
                 id: "jump",
@@ -265,11 +267,13 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
 
         ///////////////// VISUALS AND ++ //////////////////////////
 
-        // // an action that shows a background image
+        // an action that shows a background image
         showBackground() {
             return {
                 id: "showBackground",
-                run() {},
+                run() {
+                    showBackground("a");
+                },
             };
         },
 

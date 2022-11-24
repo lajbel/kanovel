@@ -11,20 +11,21 @@
 ## Quick Example
 
 ```js
-import kanovel from "kaboom";
+import kanovel from "kanovel";
 
 kanovel();
 
-character("b", "Beany", "beany");
-character("m", "Marky", "marky");
+character("b", "Beany");
+character("m", "Marky");
 
 chapter("start", () => [
-    say("b", "He is waiting"),
+    say("b", "I'm waiting"),
+    say("m", "What?"),
+    say("b", "Your visual novel"),
+    say("m", "I don't have any knowldges about engines"),
+    say("b", "Oh, you tried KaNovel?"),
 
-    show("m", "center"),
-    say("m", "Who?"),
-
-    say("b", "What?"),
+    jump("documentation"),
 ]);
 ```
 
