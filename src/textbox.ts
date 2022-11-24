@@ -12,7 +12,7 @@ export function addTextbox(
     const conf = {
         pos: array2Vec2(opt.pos ?? [0, height()]),
         width: opt.width ?? width(),
-        height: opt.height ?? 200,
+        height: opt.height ?? height() / 8,
         sprite: opt.sprite ?? null,
         size: opt.size ?? 42,
         font: opt.font ?? "Sans-Serif",

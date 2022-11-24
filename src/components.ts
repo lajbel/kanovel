@@ -91,8 +91,6 @@ export function textboxc(): TextboxComp {
 
 // fade component
 export function fade(startFade?: "in" | "out", startFadeTime?: number) {
-    let timer = 0;
-
     return {
         id: "fade",
         add() {
@@ -109,11 +107,11 @@ export function fade(startFade?: "in" | "out", startFadeTime?: number) {
         },
 
         fadeIn(time: number = 1) {
-            tween(this.opacity, 1, time, (val) => (this.opacity = val), easings.linear);
+            tween(this.opacity, 1, time, (val) => { this.opacity = val; }, easings.linear);
         },
 
         fadeOut(time: number = 1) {
-            tween(this.opacity, 0, time, (val) => (this.opacity = val), easings.linear);
+            tween(this.opacity, 0, time, (val) => { this.opacity = val; }, easings.linear);
         },
     };
 }
