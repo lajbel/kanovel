@@ -1,5 +1,5 @@
 <p align="center">
-	<img src="https://imgur.com/g5mjs4C.png" alt="KaNovel Logo" align="center">
+	<img src="art/main-logo.png" alt="KaNovel Logo" align="center">
 	<p align="center">
 		KaNovel is a begginer friendly visual novel engine! 🦋
         Using normal concepts you can make a novel :D
