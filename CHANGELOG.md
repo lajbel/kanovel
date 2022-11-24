@@ -1,6 +1,6 @@
 # 1.0.0 (unreleased)
 
--   now KaNovel core functions are exported in main package
+-   now some util KaNovel core functions are exported in main package
 
     -   `addTextbox()`
 
