@@ -21,7 +21,6 @@ function kanovel(opt: KaNovelOpt = {}) {
         height: opt.height ?? 720,
         letterbox: opt.letterbox ?? true,
         stretch: opt.stretch ?? true,
-        background: opt.background ?? [235, 152, 207],
         plugins: [kanovelPlugin],
 
         textbox: opt.textbox || {},
@@ -134,6 +133,15 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         if (!ch) throw Error("Character's id not found.");
 
         get(ch.id)[0].destroy();
+    }
+
+    // show the background
+    function showBackground(bg: string) {
+        add([
+            pos(center()),
+            anchor("center"),
+            sprite(bg),
+        ]);
     }
 
     // default scene for load kanovel gaems
@@ -258,7 +266,12 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         ///////////////// VISUALS AND ++ //////////////////////////
 
         // // an action that shows a background image
-        // showStage() {},
+        showBackground() {
+            return {
+                id: "showBackground",
+                run() {},
+            };
+        },
 
         showTextbox() {
             return {

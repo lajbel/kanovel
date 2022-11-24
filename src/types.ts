@@ -1,4 +1,4 @@
-import { KaboomCtx, KaboomPlugin, KaboomOpt } from "kaboom";
+import { KaboomCtx, KaboomOpt } from "kaboom";
 
 // KaNovel plugin function
 declare function kanovel(opt?: KaNovelOpt): KaboomCtx & KaNovelPlugin;
@@ -18,10 +18,18 @@ export interface KaNovelOpt extends KaboomOpt {
 
 /** An action it's all that happens in the novel */
 export interface Action {
+    /** Action's id */
     id: string;
     autoskip?: boolean;
+
+    /** The function runned  */
     run(): void | Promise<void>;
+
     skip?(): any;
+}
+
+export interface EffectsAction extends Action {
+    fadeIn(): Action;
 }
 
 export interface SkippableAction extends Action {
@@ -115,31 +123,7 @@ export interface KaNovelPluginOpt {
 }
 
 export interface KaNovelPlugin {
-    /**
-     * Define a character.
-     *
-     * @example
-     * ```js
-     * character("b", "Beany");
-     * ```
-     */
-    character(
-        /**
-         * Identifier to use the character.
-         */
-        id: string,
-        /**
-         * Name of the character.
-         */
-        name: string,
-        /**
-         * Options of character.
-         */
-        opt?: CharacterOpt
-    ): void;
-
-    /**
-     * Define a chapter.
+    /** Define a chapter.
      *
      * @example
      * ```js
@@ -149,14 +133,26 @@ export interface KaNovelPlugin {
      * ```
      */
     chapter(
-        /**
-         * The title of the chapter.
-         */
+        /** Chapter's title. */
         title: string,
-        /**
-         * Actions of the chapter.
-         */
+        /** Chapter's action. Will be runned while the current chapter is this */
         actions: () => Action[]
+    ): void;
+
+    /** Define a character.
+     *
+     * @example
+     * ```js
+     * character("b", "Beany");
+     * ```
+     */
+    character(
+        /** Identifier to use the character. */
+        id: string,
+        /** Name of the character. */
+        name: string,
+        /** Options of character. */
+        opt?: CharacterOpt
     ): void;
 
     /** Write in the textbox.
@@ -198,6 +194,8 @@ export interface KaNovelPlugin {
         expression: string,
         align?: "center" | "left" | "right" | Position
     ): SkippableAction;
+
+    showBackground(): Action;
 
     /**
      * Hide a character.

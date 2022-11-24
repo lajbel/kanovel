@@ -1,12 +1,13 @@
 import { GameObj, PosComp, AnchorComp } from "kaboom";
 import { textboxc, TextboxComp } from "./components";
-import { TextboxOpt } from "./types";
+import { NameboxOpt, TextboxOpt } from "./types";
 import { array2Vec2 } from "./util";
 
 import "kaboom/global";
 
 export function addTextbox(
-    opt: TextboxOpt = {}
+    opt: TextboxOpt = {},
+    nbOpt: NameboxOpt = {}
 ): GameObj<PosComp | AnchorComp | TextboxComp> {
     const conf = {
         pos: array2Vec2(opt.pos ?? [0, height()]),
@@ -18,12 +19,18 @@ export function addTextbox(
         border: opt.border ?? [10, 0, 0, 10],
     };
 
+    const nbConf = {
+        border: nbOpt.border ?? conf.border,
+    };
+
+    if (conf.sprite) loadSprite("textboxdefasset", conf.sprite);
+
     const textbox = add([pos(conf.pos), anchor("botleft"), textboxc(), z(9999)]);
 
     textbox.add([
         pos(center().x, 0),
         z(0),
-        conf.sprite ? sprite(conf.sprite) : rect(conf.width, conf.height),
+        conf.sprite ? sprite("textboxdefasset") : rect(conf.width, conf.height),
         anchor("bot"),
         "background",
     ]);
@@ -38,8 +45,8 @@ export function addTextbox(
     ]);
 
     textbox.add([
+        pos(0 + conf.border[3], -conf.height - conf.border[0]),
         z(1),
-        pos(0, -conf.height - 2),
         anchor("botleft"),
         text("", { size: 82 }),
         "namebox",
