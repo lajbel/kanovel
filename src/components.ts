@@ -19,11 +19,11 @@ export function fade(startFade?: "in" | "out", startFadeTime?: number) {
         },
 
         fadeIn(time: number = 1) {
-            tween(this.opacity, 1, time, (val) => { this.opacity = val; }, easings.linear);
+            tween(this.opacity ?? 0, 1, time, (val) => { this.opacity = val; }, easings.linear);
         },
 
         fadeOut(time: number = 1) {
-            tween(this.opacity, 0, time, (val) => { this.opacity = val; }, easings.linear);
+            tween(this.opacity ?? 1, 0, time, (val) => { this.opacity = val; }, easings.linear);
         },
     };
 }

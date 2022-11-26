@@ -195,7 +195,6 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         },
 
         ///////////////// NARRATION //////////////////////////
-
         // an action to make speak a character
         say(...args: string[]): Action {
             if (args.length === 2) {
@@ -278,21 +277,20 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             };
         },
 
-        showTextbox() {
+        showTextbox(time?: number) {
             return {
                 id: "showTextbox",
                 run() {
-                    textbox.show();
+                    textbox.show(time);
                 },
             };
         },
 
-        // TODO: this no work
-        hideTextbox() {
+        hideTextbox(time?: number) {
             return {
                 id: "hideTextbox",
                 run() {
-                    textbox.hide();
+                    textbox.hide(time);
                 },
             };
         },

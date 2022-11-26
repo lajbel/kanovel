@@ -219,9 +219,17 @@ export interface KaNovelPlugin {
         song: string
     ): Action;
 
-    showTextbox(): Action;
+    /** Show the textbox */
+    showTextbox(
+        /** Time to show the textbox */
+        time: number
+    ): Action;
 
-    hideTextbox(): Action;
+    /** Hide the textbox */
+    hideTextbox(
+        /** Time to hide the textbox */
+        time: number
+    ): Action;
 }
 
 export default kanovel;

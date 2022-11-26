@@ -29,10 +29,16 @@ export interface TextboxComp extends Comp {
     skipText(): void;
 
     /** Show the textbox */
-    show(): void;
+    show(
+        /** Time for show the textbox */
+        time?: number,
+    ): void;
 
     /** Hide the textbox */
-    hide(): void;
+    hide(
+        /** Time for show the textbox */
+        time?: number,
+    ): void;
 }
 
 export function textbox(): TextboxComp {
@@ -52,6 +58,7 @@ export function textbox(): TextboxComp {
         },
 
         write(txt: string) {
+            //TODO: wait some miliseconds with , 
             return new Promise((resolve) => {
                 textbox.text = "";
 
@@ -93,12 +100,16 @@ export function textbox(): TextboxComp {
             if (!this.skipped) this.skipped = true;
         },
 
-        show() {
-            this.use(fade("in"));
+        show(this: GameObj, time: number = 1) {
+            this.children.forEach(c => {
+                c.use(fade("in", time));
+            });
         },
 
-        hide() {
-            this.use(fade("out"));
+        hide(this: GameObj, time: number = 1) {
+            this.children.forEach(c => {
+                c.use(fade("out", time));
+            });
         },
     };
 }
