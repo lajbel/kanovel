@@ -37,6 +37,8 @@ chapter("start", () => [
 
     say("t", "With KaNovel, you can make... Visual novels!"),
 
+    hide("t"),
+
     jump("then"),
 ]);
 

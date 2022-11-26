@@ -1,13 +1,4 @@
 import type { KaboomCtx, GameObj, AudioPlay } from "kaboom";
-import type { TextboxComp } from "./types";
-
-import kaboom from "kaboom";
-
-import { fade } from "./components";
-import { download } from "./util";
-
-import { addTextbox } from "./textbox";
-
 import type {
     KaNovelPlugin,
     Character,
@@ -15,7 +6,13 @@ import type {
     KaNovelOpt,
     CharacterOpt,
     SkippableAction,
+    TextboxComp
 } from "./types";
+
+import kaboom from "kaboom";
+import { fade } from "./components";
+import { download } from "./util";
+import { addTextbox } from "./textbox";
 
 let globalOpt;
 
@@ -138,7 +135,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             k.sprite(exp),
             k.opacity(0),
             fade("in", 0.4),
-            ch.id,
+            "kn_ch_" + ch.id,
         ]);
     }
 
@@ -147,7 +144,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
 
         if (!ch) throw Error("Character's id not found.");
 
-        k.get(ch.id)[0].destroy();
+        k.get("kn_ch_" + ch.id)[0].fadeOut(0.4);
     }
 
     // show the background
@@ -222,7 +219,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
 
         ///////////////// NARRATION //////////////////////////
         // an action to make speak a character
-        say(...args: string[]): Action {
+        say(...args: string[]) {
             if (args.length === 2) {
                 const char = characters.get(args[0]);
 
@@ -252,11 +249,12 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             }
         },
 
+        // show a character
         show(
-            character: string,
-            expression: string,
+            character,
+            expression,
             align: "left" | "center" | "right" = "center"
-        ): SkippableAction {
+        ) {
             return {
                 id: "show",
                 autoskip: true,
@@ -272,18 +270,24 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             };
         },
 
-        hide(character: string): Action {
+        hide(character) {
             return {
                 id: "hide",
+                autoskip: true,
 
                 run() {
                     hideCharacter(character);
                 },
+
+                noSkip() {
+                    this.autoskip = false;
+                    return this;
+                }
             };
         },
 
         // jumps to another chapter
-        jump(chapter: string) {
+        jump(chapter) {
             return {
                 id: "jump",
                 autoskip: true,
@@ -307,7 +311,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             };
         },
 
-        showBackgroundColor(color, fadeIt?: boolean) {
+        showBackgroundColor(color, fadeIt) {
             return {
                 id: "showBackgroundColor",
                 autoskip: true,
@@ -318,7 +322,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             };
         },
 
-        showTextbox(time?: number) {
+        showTextbox(time?) {
             return {
                 id: "showTextbox",
 
@@ -328,7 +332,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             };
         },
 
-        hideTextbox(time?: number) {
+        hideTextbox(time?) {
             return {
                 id: "hideTextbox",
 
@@ -340,7 +344,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
 
         ///////////////// MUSIC & AUDIO //////////////////////////
         // an action that plays background music
-        playMusic(song: string): Action {
+        playMusic(song: string) {
             return {
                 id: "play",
                 autoskip: true,
@@ -352,7 +356,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         },
 
         // an action that stops a current listening background music
-        stopMusic(song: string): Action {
+        stopMusic(song: string) {
             return {
                 id: "stop",
                 autoskip: true,

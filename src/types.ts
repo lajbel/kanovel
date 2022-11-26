@@ -193,7 +193,7 @@ export interface KaNovelPlugin {
     ): SkippableAction;
 
     /** Hide a character. */
-    hide(character: string): Action;
+    hide(character: string): SkippableAction;
 
     /** Jump to another chapter. */
     jump(
