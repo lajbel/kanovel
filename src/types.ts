@@ -1,4 +1,4 @@
-import { KaboomCtx, KaboomOpt } from "kaboom";
+import type { KaboomCtx, KaboomOpt, Comp, GameObj } from "kaboom";
 
 // KaNovel plugin function
 declare function kanovel(opt?: KaNovelOpt): KaboomCtx & KaNovelPlugin;
@@ -237,6 +237,43 @@ export interface KaNovelPlugin {
         /** Time to hide the textbox */
         time: number
     ): Action;
+}
+
+// Components
+export interface TextboxComp extends Comp {
+    skipped: boolean;
+
+    curChar: number;
+
+    /** Textbox */
+    textbox?: GameObj;
+
+    /** Namebox */
+    namebox?: GameObj;
+
+    /** Custom add */
+    addEx(): void;
+
+    /** Write a text */
+    write(text: string): Promise<void>;
+
+    /** Set the name of namebox */
+    setName(text: string, color?: string | number | typeof Color): void;
+
+    /** Skip current writng text */
+    skipText(): void;
+
+    /** Show the textbox */
+    show(
+        /** Time for show the textbox */
+        time?: number,
+    ): void;
+
+    /** Hide the textbox */
+    hide(
+        /** Time for show the textbox */
+        time?: number,
+    ): void;
 }
 
 export default kanovel;

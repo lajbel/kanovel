@@ -1,7 +1,12 @@
-import kaboom, { KaboomCtx, GameObj, AudioPlay } from "kaboom";
+import type { KaboomCtx, GameObj, AudioPlay } from "kaboom";
+import type { TextboxComp } from "./types";
+
+import kaboom from "kaboom";
+
 import { fade } from "./components";
-import { TextboxComp, addTextbox } from "./textbox";
 import { download } from "./util";
+
+import { addTextbox } from "./textbox";
 
 import type {
     KaNovelPlugin,
