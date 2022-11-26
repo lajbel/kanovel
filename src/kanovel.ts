@@ -1,6 +1,6 @@
 import kaboom, { KaboomCtx, GameObj, AudioPlay } from "kaboom";
-import { TextboxComp, fade } from "./components";
-import { addTextbox } from "./textbox";
+import { fade } from "./components";
+import { TextboxComp, addTextbox } from "./textbox";
 import { download } from "./util";
 
 import type {
