@@ -24,6 +24,7 @@ function kanovel(opt: KaNovelOpt = {}) {
         plugins: [kanovelPlugin],
 
         textbox: opt.textbox || {},
+        namebox: opt.namebox || {},
     };
 
     kaboom(conf);
@@ -153,7 +154,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
 
         if (!chapters.get("start")) throw Error("Should define a start chapter.");
 
-        textbox = addTextbox(globalOpt.textbox ?? {});
+        textbox = addTextbox(k, globalOpt.textbox ?? {}, globalOpt.namebox);
 
         nextAction();
 
@@ -286,6 +287,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             };
         },
 
+        // TODO: this no work
         hideTextbox() {
             return {
                 id: "hideTextbox",

@@ -48,13 +48,13 @@ export interface Character {
 }
 
 /** A **chapter** it's how the novel its stored in the time. */
-export interface Chapter {}
+export interface Chapter { }
 
 export interface CharacterOpt {
     /** Character's display name colour. */
     color?: string;
     /** Character's expressions. */
-    expressions?: { [name: string]: string };
+    expressions?: { [name: string]: string; };
 }
 
 export interface TextOpt {
@@ -80,6 +80,9 @@ export interface TextboxOpt {
 
     /** Textbox's text font */
     font?: string;
+
+    /** Textbox's text color */
+    color?: string;
 
     /** Textbox's text border */
     border?: [number, number, number, number];

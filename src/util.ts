@@ -1,5 +1,7 @@
 // conver arrays to vec2
 export function array2Vec2(arr: number[]) {
+    if (!arr || arr.length < 2) return null;
+
     return vec2(arr[0], arr[1]);
 }
 
@@ -15,3 +17,8 @@ export function download(filename: string, url: string) {
     a.download = filename;
     a.click();
 }
+
+// layers
+export const layers = {
+    "ui": 100,
+};
