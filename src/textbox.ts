@@ -54,7 +54,7 @@ export function textbox(): TextboxComp {
 
         addEx() {
             textbox = this.get("kn_tb_textbox")[0];
-            namebox = this.get("kn_tb_namebox")[0];
+            namebox = this.get("kn_nb_namebox")[0];
         },
 
         write(txt: string) {
@@ -126,7 +126,7 @@ export function addTextbox(
         sprite: opt.sprite ?? null,
         size: opt.size ?? 42,
         font: opt.font ?? "Sans-Serif",
-        color: opt.color ? Color.fromHex(opt.color) : BLACK,
+        color: opt.color ? k.Color.fromHex(opt.color) : BLACK,
         border: opt.border ?? [5, 0, 0, 5],
     };
 
@@ -169,22 +169,29 @@ export function addTextbox(
         ),
         k.z(1),
         k.anchor("topleft"),
-        k.text("", { size: conf.size, font: opt.font, width: defaultTextboxMaxWidth }),
+        k.text("", { size: conf.size, font: opt.font, width: defaultTextboxMaxWidth - conf.border[3], align: "left", }),
         k.color(conf.color),
         "kn_tb_textbox",
     ]);
 
-    // namebox text
-    // TODO: add support to namebox background
+    // TODO: make sprite namebox
     textboxParent.add([
-        pos(
+        k.pos(
             0 - textboxWidth / 2 + nbConf.border[3],
             0 - textboxHeight / 2 + nbConf.border[0]
         ),
-        z(1),
-        anchor("botleft"),
-        text("", { size: nbConf.size, }),
-        "kn_tb_namebox",
+    ]);
+
+    // namebox text
+    textboxParent.add([
+        k.pos(
+            0 - textboxWidth / 2 + nbConf.border[3],
+            0 - textboxHeight / 2 + nbConf.border[0]
+        ),
+        k.z(1),
+        k.anchor("botleft"),
+        k.text("", { size: nbConf.size, }),
+        "kn_nb_namebox",
     ]);
 
     textboxParent.addEx();

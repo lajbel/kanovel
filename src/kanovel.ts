@@ -113,17 +113,26 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         if (!exp) throw Error(`Character's expression ${expression} not found.`);
 
         const alignments = {
-            left: [k.anchor("botleft"), k.pos(0, k.height())],
-            center: [k.anchor("bot"), k.pos(k.center().x, k.height())],
-            right: [k.anchor("botright"), k.pos(k.width(), k.height())],
+            "left": [
+                k.anchor("botleft"),
+                k.pos(0, k.height())
+            ],
+            "center": [
+                k.anchor("bot"),
+                k.pos(k.center().x, k.height())
+            ],
+            "right": [
+                k.anchor("botright"),
+                k.pos(k.width(), k.height())
+            ],
         };
 
         k.add([
+            ...alignments[align],
+            k.z(100),
             k.sprite(exp),
             k.opacity(0),
-            ...alignments[align],
             fade("in", 0.4),
-            z(100),
             ch.id,
         ]);
     }
@@ -133,7 +142,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
 
         if (!ch) throw Error("Character's id not found.");
 
-        get(ch.id)[0].destroy();
+        k.get(ch.id)[0].destroy();
     }
 
     // show the background
@@ -144,6 +153,18 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             k.sprite(bg),
             fade(),
             "bg"
+        ]);
+    }
+
+    // show a placeholder color background
+    function showBackgroundColor(color: string, fadeIt?: boolean) {
+        k.add([
+            k.pos(k.center()),
+            k.anchor("center"),
+            k.rect(k.width(), k.height()),
+            k.color(Color.fromHex(color)),
+            fadeIt ? fade("in") : {},
+            "kn_game_background",
         ]);
     }
 
@@ -158,7 +179,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
 
         nextAction();
 
-        // default input
+        // input
         k.onUpdate(() => {
             if (k.isMousePressed("left") || k.isKeyPressed("space")) {
                 if (!isAction) nextAction();
@@ -234,12 +255,13 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             return {
                 id: "show",
                 autoskip: true,
+
                 run() {
                     showCharacter(character, expression, align);
                 },
+
                 noSkip() {
                     this.autoskip = false;
-
                     return this;
                 },
             };
@@ -248,6 +270,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         hide(character: string): Action {
             return {
                 id: "hide",
+
                 run() {
                     hideCharacter(character);
                 },
@@ -259,6 +282,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             return {
                 id: "jump",
                 autoskip: true,
+
                 run() {
                     changeChapter(chapter);
                 },
@@ -266,20 +290,33 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         },
 
         ///////////////// VISUALS AND ++ //////////////////////////
-
         // an action that shows a background image
         showBackground() {
             return {
                 id: "showBackground",
+                autoskip: true,
+
                 run() {
                     showBackground("a");
                 },
             };
         },
 
+        showBackgroundColor(color, fadeIt?: boolean) {
+            return {
+                id: "showBackgroundColor",
+                autoskip: true,
+
+                run() {
+                    showBackgroundColor(color, fadeIt);
+                }
+            };
+        },
+
         showTextbox(time?: number) {
             return {
                 id: "showTextbox",
+
                 run() {
                     textbox.show(time);
                 },
@@ -289,6 +326,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         hideTextbox(time?: number) {
             return {
                 id: "hideTextbox",
+
                 run() {
                     textbox.hide(time);
                 },
@@ -296,12 +334,12 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
         },
 
         ///////////////// MUSIC & AUDIO //////////////////////////
-
         // an action that plays background music
         playMusic(song: string): Action {
             return {
                 id: "play",
                 autoskip: true,
+
                 async run() {
                     addAudio(song);
                 },
@@ -313,6 +351,7 @@ export function kanovelPlugin(k: KaboomCtx): KaNovelPlugin {
             return {
                 id: "stop",
                 autoskip: true,
+
                 async run() {
                     removeAudio(song);
                 },

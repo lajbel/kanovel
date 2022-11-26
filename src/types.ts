@@ -163,7 +163,7 @@ export interface KaNovelPlugin {
      * @example
      * ```js
      * // write as narrator
-     * say("Sack is so stupid")
+     * say("We all live in a yellow submarine")
      * ```
      */
     say(
@@ -171,7 +171,13 @@ export interface KaNovelPlugin {
         text: string
     ): Action;
 
-    /** Write in the textbox as character. */
+    /** Write in the textbox as character.
+     * 
+     * @example
+     * ```js
+     * say("b", "Help! I need somebody...")
+     * ```
+    */
     say(
         /** The character's id */
         id: string,
@@ -179,31 +185,32 @@ export interface KaNovelPlugin {
         text: string
     ): Action;
 
-    /**
-     * Jump to other chapter.
-     */
-    jump(
-        /**
-         * Chapter to jump
-         */
-        chapter: string
-    ): Action;
-
-    /**
-     * Show a character.
-     */
+    /** Show a character. */
     show(
         character: string,
         expression: string,
         align?: "center" | "left" | "right" | Position
     ): SkippableAction;
 
+    /** Hide a character. */
+    hide(character: string): Action;
+
+    /** Jump to another chapter. */
+    jump(
+        /** Chapter to jump */
+        chapter: string
+    ): Action;
+
+    /** Shows a background */
     showBackground(): Action;
 
-    /**
-     * Hide a character.
-     */
-    hide(charId: string): Action;
+    /** Shows a color background (usable for placeholders) */
+    showBackgroundColor(
+        /** Background's color */
+        color: string,
+        /** It should fade at start? */
+        fade?: boolean,
+    ): Action;
 
     /** Plays a music. */
     playMusic(
