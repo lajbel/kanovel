@@ -10,8 +10,8 @@ esbuild.build({
         ".glsl": "text",
         ".mp3": "binary",
     },
-    entryPoints: ["test/game.ts"],
+    entryPoints: ["example/game.ts"],
     globalName: "kanovel",
     format: "iife",
-    outfile: "test/main.js",
+    outfile: "example/main.js",
 });
